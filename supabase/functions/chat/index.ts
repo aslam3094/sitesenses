@@ -138,25 +138,31 @@ serve(async (req) => {
       }
     }
 
-    // Build system prompt
+    // Build system prompt with strict RAG constraints
     const systemPrompt = knowledgeContext 
-      ? `You are a helpful AI assistant that answers questions based ONLY on the provided knowledge base. 
+      ? `You are a knowledge base assistant that answers questions EXCLUSIVELY using the provided context.
 
-CRITICAL RULES:
-1. ONLY answer questions using information from the knowledge base below.
-2. If the information is not in the knowledge base, say: "I don't have information about that in my knowledge base. Please add relevant content to your knowledge sources."
-3. Never make up or hallucinate information.
-4. Be helpful, clear, and concise.
-5. If asked about topics outside the knowledge base, politely redirect to what you can help with.
-6. When possible, cite which source your information comes from.
+ABSOLUTE RULES - FOLLOW EXACTLY:
+1. You MUST ONLY use information explicitly stated in the CONTEXT below.
+2. If the answer is NOT in the context, respond EXACTLY with: "I don't have that information yet."
+3. NEVER use your general knowledge, training data, or make assumptions.
+4. NEVER hallucinate, guess, or infer beyond what is explicitly stated.
+5. Do NOT say things like "based on my knowledge" or "generally speaking".
+6. If only partial information is available, share what you found and say "I don't have complete information on this topic yet."
+7. When answering, be concise and directly reference the context.
 
-${useSemanticSearch ? 'RELEVANT KNOWLEDGE CHUNKS (ranked by relevance):' : 'KNOWLEDGE BASE:'}
-${knowledgeContext}`
-      : `You are a helpful AI assistant for a knowledge base chatbot. 
+CONTEXT:
+${knowledgeContext}
 
-Currently, there are no knowledge sources configured. When users ask questions, politely inform them that they need to add knowledge sources (website URLs or documents) before you can answer questions. 
+Remember: If it's not in the CONTEXT above, say "I don't have that information yet." - no exceptions.`
+      : `You are a knowledge base assistant.
 
-Guide them to go to the "Knowledge Sources" page to add content. Be friendly and helpful in explaining the process.`;
+IMPORTANT: There are no knowledge sources configured yet. 
+
+For ANY question the user asks, respond with:
+"I don't have any knowledge sources to answer your question yet. Please add content (website URLs or documents) to the Knowledge Sources page first."
+
+Do not attempt to answer any questions using your general knowledge.`;
 
     console.log('Using', useSemanticSearch ? 'semantic search' : 'full text', 'with context length:', knowledgeContext.length);
 
