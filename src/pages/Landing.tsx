@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Brain, Upload, Globe, MessageSquare, Shield, Zap, ArrowRight, Check, Bot, Users, BarChart3, Sparkles } from "lucide-react";
+import { ContainerScroll } from "@/components/ui/container-scroll-animation";
 
 const Landing = () => {
   const features = [
@@ -42,13 +43,10 @@ const Landing = () => {
 
   return (
     <div className="flex flex-col">
-      {/* Hero Section */}
-      <section className="relative overflow-hidden pt-20 pb-24 md:pt-28 md:pb-32 lg:pt-32 lg:pb-40">
-        {/* Subtle background gradient */}
-        <div className="absolute inset-0 bg-gradient-to-br from-accent/[0.02] via-transparent to-transparent pointer-events-none" />
-        
-        <div className="container relative">
-          <div className="mx-auto max-w-4xl text-center">
+      {/* Hero Section with Container Scroll */}
+      <ContainerScroll
+        titleComponent={
+          <div className="flex flex-col items-center">
             {/* Badge */}
             <div 
               className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-4 py-2 text-sm font-medium text-foreground mb-8 animate-fade-in shadow-soft"
@@ -58,18 +56,18 @@ const Landing = () => {
             </div>
             
             {/* Main Heading */}
-            <h1 className="mb-6 animate-fade-in-up text-balance">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 animate-fade-in-up text-balance leading-tight">
               Turn your knowledge into an{" "}
               <span className="text-gradient">intelligent AI agent</span>
             </h1>
             
             {/* Description */}
-            <p className="text-lg md:text-xl text-muted-foreground mb-10 max-w-3xl mx-auto animate-fade-in-up stagger-1 leading-relaxed text-balance">
-              KnowledgeBot turns your documentation and knowledge sources into an intelligent AI agent that intercepts and resolves customer queries automatically. Only the complex issues that truly require human touch reach your support team.
+            <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-3xl mx-auto animate-fade-in-up stagger-1 leading-relaxed text-balance">
+              SiteSense turns your documentation and knowledge sources into an intelligent AI agent that intercepts and resolves customer queries automatically. Only the complex issues that truly require human touch reach your support team.
             </p>
 
             {/* Secondary Description */}
-            <p className="text-base text-muted-foreground mb-12 max-w-2xl mx-auto animate-fade-in-up stagger-2 leading-relaxed">
+            <p className="text-base text-muted-foreground mb-10 max-w-2xl mx-auto animate-fade-in-up stagger-2 leading-relaxed">
               It's like having ChatGPT specifically for your products. Instantly answer your visitors' questions with a personalized chatbot trained on your website content.
             </p>
             
@@ -88,26 +86,85 @@ const Landing = () => {
               </Link>
             </div>
           </div>
-
-          {/* Floating decorations */}
-          <div className="hidden lg:block absolute top-32 left-[10%] animate-fade-in stagger-4">
-            <div 
-              className="w-14 h-14 rounded-2xl bg-accent/10 border border-accent/20 flex items-center justify-center shadow-soft"
-              style={{ animation: 'float 6s ease-in-out infinite' }}
-            >
-              <Bot className="h-6 w-6 text-accent" />
-            </div>
-          </div>
-          <div className="hidden lg:block absolute top-48 right-[10%] animate-fade-in stagger-5">
-            <div 
-              className="w-12 h-12 rounded-xl bg-success/10 border border-success/20 flex items-center justify-center shadow-soft"
-              style={{ animation: 'float 6s ease-in-out infinite 1s' }}
-            >
-              <Check className="h-5 w-5 text-success" />
+        }
+      >
+        {/* Dashboard Preview inside scroll container */}
+        <div className="h-full w-full flex items-center justify-center bg-gradient-to-br from-accent/5 via-background to-muted/30 rounded-2xl p-8">
+          <div className="w-full max-w-4xl">
+            {/* Mock Chat Interface */}
+            <div className="bg-card border border-border rounded-2xl shadow-card overflow-hidden">
+              {/* Chat Header */}
+              <div className="px-6 py-4 border-b border-border bg-muted/30 flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl gradient-accent">
+                  <Bot className="h-5 w-5 text-accent-foreground" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-sm">SiteSense AI</h3>
+                  <p className="text-xs text-muted-foreground">Trained on your knowledge base</p>
+                </div>
+                <div className="ml-auto flex items-center gap-1.5">
+                  <span className="h-2 w-2 rounded-full bg-success animate-pulse" />
+                  <span className="text-xs text-muted-foreground">Online</span>
+                </div>
+              </div>
+              
+              {/* Chat Messages */}
+              <div className="p-6 space-y-4 min-h-[280px]">
+                <div className="flex gap-3">
+                  <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center shrink-0">
+                    <Users className="h-4 w-4 text-muted-foreground" />
+                  </div>
+                  <div className="bg-muted rounded-2xl rounded-tl-md px-4 py-3 max-w-[80%]">
+                    <p className="text-sm">How do I integrate the chatbot with my website?</p>
+                  </div>
+                </div>
+                
+                <div className="flex gap-3 justify-end">
+                  <div className="bg-accent text-accent-foreground rounded-2xl rounded-tr-md px-4 py-3 max-w-[80%]">
+                    <p className="text-sm">Great question! You can integrate SiteSense with just a single line of code. Simply copy the embed script from your dashboard and paste it before the closing &lt;/body&gt; tag on your website. The chatbot will automatically appear as a floating widget.</p>
+                  </div>
+                  <div className="h-8 w-8 rounded-full gradient-accent flex items-center justify-center shrink-0">
+                    <Bot className="h-4 w-4 text-accent-foreground" />
+                  </div>
+                </div>
+                
+                <div className="flex gap-3">
+                  <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center shrink-0">
+                    <Users className="h-4 w-4 text-muted-foreground" />
+                  </div>
+                  <div className="bg-muted rounded-2xl rounded-tl-md px-4 py-3 max-w-[80%]">
+                    <p className="text-sm">Can I customize the appearance?</p>
+                  </div>
+                </div>
+                
+                <div className="flex gap-3 justify-end">
+                  <div className="bg-accent text-accent-foreground rounded-2xl rounded-tr-md px-4 py-3 max-w-[80%]">
+                    <p className="text-sm">Absolutely! You can customize colors, position, welcome messages, and more from the Settings page. Match it perfectly with your brand. ✨</p>
+                  </div>
+                  <div className="h-8 w-8 rounded-full gradient-accent flex items-center justify-center shrink-0">
+                    <Bot className="h-4 w-4 text-accent-foreground" />
+                  </div>
+                </div>
+              </div>
+              
+              {/* Chat Input */}
+              <div className="px-6 py-4 border-t border-border bg-muted/20">
+                <div className="flex items-center gap-3">
+                  <input 
+                    type="text" 
+                    placeholder="Ask anything about your product..." 
+                    className="flex-1 bg-background border border-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-accent/20"
+                    disabled
+                  />
+                  <Button size="sm" variant="accent" className="px-4">
+                    Send
+                  </Button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
-      </section>
+      </ContainerScroll>
 
       {/* Stats Section */}
       <section className="py-16 md:py-20 border-y border-border bg-muted/30">
@@ -185,7 +242,7 @@ const Landing = () => {
           <div className="text-center mb-16 md:mb-20">
             <h2 className="mb-5 text-balance">Perfect for every team</h2>
             <p className="text-muted-foreground max-w-xl mx-auto text-lg">
-              From startups to enterprises, KnowledgeBot helps teams provide instant answers.
+              From startups to enterprises, SiteSense helps teams provide instant answers.
             </p>
           </div>
 
@@ -223,7 +280,7 @@ const Landing = () => {
               Ready to build your AI knowledge base?
             </h2>
             <p className="text-primary-foreground/70 mb-10 max-w-lg mx-auto text-lg">
-              Join thousands of businesses using KnowledgeBot to provide instant,
+              Join thousands of businesses using SiteSense to provide instant,
               accurate answers to their customers.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">

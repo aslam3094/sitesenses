@@ -67,7 +67,7 @@ const Auth = () => {
             <div className="flex h-10 w-10 items-center justify-center rounded-xl gradient-accent">
               <Brain className="h-5 w-5 text-accent-foreground" />
             </div>
-            <span className="tracking-tight">KnowledgeBot</span>
+            <span className="tracking-tight">SiteSense</span>
           </Link>
           <p className="text-muted-foreground text-sm">
             {isSignUp ? "Create your account" : "Welcome back"}
