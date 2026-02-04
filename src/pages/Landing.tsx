@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Brain, Upload, Globe, MessageSquare, Shield, Zap, ArrowRight, Check, Bot, Users, BarChart3, Sparkles } from "lucide-react";
 import { ContainerScroll } from "@/components/ui/container-scroll-animation";
+import { BlurFade } from "@/components/ui/blur-fade";
 
 const Landing = () => {
   const features = [
@@ -48,43 +49,53 @@ const Landing = () => {
         titleComponent={
           <div className="flex flex-col items-center">
             {/* Badge */}
-            <div 
-              className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-4 py-2 text-sm font-medium text-foreground mb-8 animate-fade-in shadow-soft"
-            >
-              <Sparkles className="h-4 w-4 text-accent" />
-              <span>AI-Powered Customer Support</span>
-            </div>
+            <BlurFade delay={0}>
+              <div 
+                className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-4 py-2 text-sm font-medium text-foreground mb-8 shadow-soft"
+              >
+                <Sparkles className="h-4 w-4 text-accent" />
+                <span>AI-Powered Customer Support</span>
+              </div>
+            </BlurFade>
             
             {/* Main Heading */}
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 animate-fade-in-up text-balance leading-tight">
-              Turn your knowledge into an{" "}
-              <span className="text-gradient">intelligent AI agent</span>
-            </h1>
+            <BlurFade delay={0.1}>
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 text-balance leading-tight text-center">
+                Turn your website into an{" "}
+                <span className="text-gradient">intelligent AI agent</span>
+              </h1>
+            </BlurFade>
             
             {/* Description */}
-            <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-3xl mx-auto animate-fade-in-up stagger-1 leading-relaxed text-balance">
-              SiteSense turns your documentation and knowledge sources into an intelligent AI agent that intercepts and resolves customer queries automatically. Only the complex issues that truly require human touch reach your support team.
-            </p>
+            <BlurFade delay={0.2}>
+              <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-3xl mx-auto leading-relaxed text-balance text-center">
+                SiteSense turns your documentation and knowledge sources into an intelligent AI agent that intercepts and resolves customer queries automatically. Only the complex issues that truly require human touch reach your support team.
+              </p>
+            </BlurFade>
 
             {/* Secondary Description */}
-            <p className="text-base text-muted-foreground mb-10 max-w-2xl mx-auto animate-fade-in-up stagger-2 leading-relaxed">
-              It's like having ChatGPT specifically for your products. Instantly answer your visitors' questions with a personalized chatbot trained on your website content.
-            </p>
+            <BlurFade delay={0.3}>
+              <p className="text-base text-muted-foreground mb-10 max-w-2xl mx-auto leading-relaxed text-center">
+                It's like having ChatGPT specifically for your products. Instantly answer your visitors' questions with a personalized chatbot trained on your website content.
+              </p>
+            </BlurFade>
             
             {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in-up stagger-3">
-              <Link to="/auth?mode=signup">
-                <Button size="xl" variant="accent" className="min-w-[180px]">
-                  Get Started Free
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              </Link>
-              <Link to="/pricing">
-                <Button size="xl" variant="outline" className="min-w-[180px]">
-                  View Pricing
-                </Button>
-              </Link>
-            </div>
+            <BlurFade delay={0.4}>
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                <Link to="/auth?mode=signup">
+                  <Button size="xl" variant="accent" className="min-w-[180px]">
+                    Get Started Free
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </Link>
+                <Link to="/pricing">
+                  <Button size="xl" variant="outline" className="min-w-[180px]">
+                    View Pricing
+                  </Button>
+                </Link>
+              </div>
+            </BlurFade>
           </div>
         }
       >
