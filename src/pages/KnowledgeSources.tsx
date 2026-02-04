@@ -317,9 +317,16 @@ const KnowledgeSources = () => {
                       <div className="flex items-center gap-2 text-xs text-muted-foreground">
                         <span>{formatDate(source.created_at)}</span>
                         {source.status === 'completed' && source.metadata && (
-                          <span>
-                            • {((source.metadata as { charCount?: number }).charCount || 0).toLocaleString()} chars
-                          </span>
+                          <>
+                            <span>
+                              • {((source.metadata as { charCount?: number }).charCount || 0).toLocaleString()} chars
+                            </span>
+                            {(source.metadata as { embedding_count?: number }).embedding_count && (
+                              <span className="text-accent">
+                                • {(source.metadata as { embedding_count?: number }).embedding_count} embeddings
+                              </span>
+                            )}
+                          </>
                         )}
                         {source.status === 'error' && source.error_message && (
                           <span className="text-destructive truncate max-w-[200px]">

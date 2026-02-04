@@ -104,6 +104,8 @@ export const knowledgeApi = {
       await supabase.storage.from('documents').remove([filePath]);
     }
 
+    // Embeddings are deleted automatically via CASCADE
+
     // Delete the source record
     const { error } = await supabase
       .from('knowledge_sources')
@@ -111,6 +113,17 @@ export const knowledgeApi = {
       .eq('id', id);
 
     if (error) throw error;
+  },
+
+  // Get embedding count for a source
+  async getEmbeddingCount(sourceId: string): Promise<number> {
+    const { count, error } = await supabase
+      .from('embeddings')
+      .select('*', { count: 'exact', head: true })
+      .eq('source_id', sourceId);
+
+    if (error) throw error;
+    return count || 0;
   },
 
   // Subscribe to realtime updates

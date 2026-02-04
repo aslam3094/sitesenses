@@ -151,6 +151,17 @@ serve(async (req) => {
         .eq('id', sourceId)
         .eq('user_id', user.id);
 
+      // Trigger embedding generation in background
+      const embedUrl = `${supabaseUrl}/functions/v1/generate-embeddings`;
+      fetch(embedUrl, {
+        method: 'POST',
+        headers: {
+          'Authorization': authHeader,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ sourceId }),
+      }).catch(err => console.error('Error triggering embeddings:', err));
+
       return new Response(
         JSON.stringify({ 
           success: true, 
