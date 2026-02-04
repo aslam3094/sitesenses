@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Brain, Upload, Globe, MessageSquare, Shield, Zap, ArrowRight, Check, Users, BarChart3 } from "lucide-react";
 import { HeroSection } from "@/components/landing/HeroSection";
+import { FlickeringGrid } from "@/components/ui/flickering-grid";
 
 const Landing = () => {
   const features = [
@@ -34,47 +35,34 @@ const Landing = () => {
     "Works with any website",
   ];
 
-  const stats = [
-    { value: "10K+", label: "Active Users" },
-    { value: "1M+", label: "Questions Answered" },
-    { value: "99.9%", label: "Uptime" },
-    { value: "4.9/5", label: "User Rating" },
-  ];
-
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col relative">
+      {/* Global Flickering Grid Background */}
+      <div className="fixed inset-0 z-0 pointer-events-none">
+        <FlickeringGrid
+          className="w-full h-full"
+          squareSize={4}
+          gridGap={6}
+          color="rgb(245, 158, 11)"
+          maxOpacity={0.08}
+          flickerChance={0.1}
+        />
+      </div>
+
       {/* Hero Section */}
       <HeroSection />
 
-      {/* Stats Section */}
-      <section className="py-16 md:py-20 border-y border-border bg-muted/30">
-        <div className="container">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12">
-            {stats.map((stat, i) => (
-              <div 
-                key={i} 
-                className="text-center animate-fade-in-up"
-                style={{ animationDelay: `${i * 0.1}s` }}
-              >
-                <div className="text-3xl md:text-4xl font-bold text-foreground mb-1">{stat.value}</div>
-                <div className="text-sm text-muted-foreground">{stat.label}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* Benefits Section */}
-      <section className="section-padding-sm">
+      <section className="py-10 md:py-12 relative z-10 bg-background/80 backdrop-blur-sm">
         <div className="container">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
             {benefits.map((benefit, i) => (
               <div 
                 key={i} 
-                className="flex items-center gap-3 p-5 rounded-xl bg-card border border-border shadow-card animate-fade-in-up hover-lift"
+                className="flex items-center gap-3 p-4 rounded-xl bg-card/90 border border-border shadow-card animate-fade-in-up hover-lift"
                 style={{ animationDelay: `${i * 0.1}s` }}
               >
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-success/10">
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-success/10">
                   <Check className="h-4 w-4 text-success" />
                 </div>
                 <span className="text-sm font-medium text-foreground">{benefit}</span>
@@ -84,32 +72,32 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* Features Section */}
-      <section id="features" className="section-padding">
+      {/* Features Section - Dark theme like hero */}
+      <section id="features" className="py-16 md:py-20 relative z-10 bg-foreground">
         <div className="container">
-          <div className="text-center mb-16 md:mb-20 animate-fade-in">
-            <div className="inline-flex items-center gap-2 rounded-full bg-accent/10 border border-accent/20 px-4 py-1.5 text-sm font-medium text-foreground mb-6">
+          <div className="text-center mb-10 md:mb-12 animate-fade-in">
+            <div className="inline-flex items-center gap-2 rounded-full bg-accent/20 border border-accent/30 px-4 py-1.5 text-sm font-medium text-background/90 mb-6">
               <Zap className="h-4 w-4 text-accent" />
               Simple Setup
             </div>
-            <h2 className="mb-5 text-balance">How it works</h2>
-            <p className="text-muted-foreground max-w-xl mx-auto text-lg">
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 text-background text-balance">How it works</h2>
+            <p className="text-background/70 max-w-xl mx-auto text-lg">
               Get your AI chatbot up and running in minutes with our simple process.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
             {features.map((feature, i) => (
               <div 
                 key={i} 
-                className="group p-6 rounded-2xl bg-card border border-border shadow-card animate-fade-in-up transition-all duration-300 hover:shadow-lg hover:border-accent/20 hover:-translate-y-1"
+                className="group p-5 rounded-2xl bg-background/5 border border-background/10 backdrop-blur-sm animate-fade-in-up transition-all duration-300 hover:bg-background/10 hover:border-background/20"
                 style={{ animationDelay: `${i * 0.1}s` }}
               >
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-accent/10 border border-accent/20 mb-5 group-hover:bg-accent/15 transition-colors">
+                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent/20 border border-accent/30 mb-4 group-hover:bg-accent/30 transition-colors">
                   <feature.icon className="h-5 w-5 text-accent" />
                 </div>
-                <h3 className="text-lg font-semibold mb-2">{feature.title}</h3>
-                <p className="text-muted-foreground text-sm leading-relaxed">{feature.description}</p>
+                <h3 className="text-lg font-semibold mb-2 text-background">{feature.title}</h3>
+                <p className="text-background/60 text-sm leading-relaxed">{feature.description}</p>
               </div>
             ))}
           </div>
@@ -117,16 +105,16 @@ const Landing = () => {
       </section>
 
       {/* Use Cases Section */}
-      <section className="section-padding bg-muted/30">
+      <section className="py-14 md:py-16 relative z-10 bg-background/90 backdrop-blur-sm">
         <div className="container">
-          <div className="text-center mb-16 md:mb-20">
-            <h2 className="mb-5 text-balance">Perfect for every team</h2>
-            <p className="text-muted-foreground max-w-xl mx-auto text-lg">
+          <div className="text-center mb-10 md:mb-12">
+            <h2 className="text-2xl md:text-3xl font-bold mb-4 text-balance">Perfect for every team</h2>
+            <p className="text-muted-foreground max-w-xl mx-auto text-base">
               From startups to enterprises, SiteSense helps teams provide instant answers.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+          <div className="grid md:grid-cols-3 gap-4 max-w-5xl mx-auto">
             {[
               { icon: Users, title: "Customer Support", desc: "Deflect common questions and reduce ticket volume by up to 70%." },
               { icon: BarChart3, title: "Sales Teams", desc: "Give prospects instant answers about your product and pricing." },
@@ -134,14 +122,14 @@ const Landing = () => {
             ].map((item, i) => (
               <div 
                 key={i}
-                className="p-8 rounded-2xl bg-card border border-border shadow-card hover-lift animate-fade-in-up"
+                className="p-6 rounded-2xl bg-card/90 border border-border shadow-card hover-lift animate-fade-in-up"
                 style={{ animationDelay: `${i * 0.1}s` }}
               >
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl gradient-accent mb-6">
+                <div className="flex h-11 w-11 items-center justify-center rounded-xl gradient-accent mb-5">
                   <item.icon className="h-5 w-5 text-accent-foreground" />
                 </div>
-                <h3 className="text-xl font-semibold mb-3">{item.title}</h3>
-                <p className="text-muted-foreground leading-relaxed">{item.desc}</p>
+                <h3 className="text-lg font-semibold mb-2">{item.title}</h3>
+                <p className="text-muted-foreground text-sm leading-relaxed">{item.desc}</p>
               </div>
             ))}
           </div>
@@ -149,29 +137,29 @@ const Landing = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="section-padding bg-primary text-primary-foreground relative overflow-hidden">
+      <section className="py-16 md:py-20 bg-foreground text-primary-foreground relative overflow-hidden z-10">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(255,255,255,0.03),transparent_50%)]" />
         <div className="container relative">
           <div className="mx-auto max-w-2xl text-center">
-            <div className="flex h-16 w-16 items-center justify-center rounded-2xl gradient-accent mx-auto mb-8 shadow-glow">
-              <Brain className="h-7 w-7 text-accent-foreground" />
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl gradient-accent mx-auto mb-6 shadow-glow">
+              <Brain className="h-6 w-6 text-accent-foreground" />
             </div>
-            <h2 className="text-3xl md:text-4xl font-bold mb-5 text-primary-foreground">
+            <h2 className="text-2xl md:text-3xl font-bold mb-4 text-background">
               Ready to build your AI knowledge base?
             </h2>
-            <p className="text-primary-foreground/70 mb-10 max-w-lg mx-auto text-lg">
+            <p className="text-background/60 mb-8 max-w-lg mx-auto text-base">
               Join thousands of businesses using SiteSense to provide instant,
               accurate answers to their customers.
             </p>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
               <Link to="/auth?mode=signup">
-                <Button size="xl" variant="accent" className="min-w-[180px]">
+                <Button size="lg" variant="accent" className="min-w-[160px]">
                   Start for Free
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               </Link>
               <Link to="/pricing">
-                <Button size="xl" variant="outline" className="min-w-[180px] border-primary-foreground/20 text-primary-foreground hover:bg-primary-foreground/10 hover:border-primary-foreground/30">
+                <Button size="lg" variant="outline" className="min-w-[160px] border-background/40 text-background bg-background/10 hover:bg-background/20 hover:border-background/50">
                   View Pricing
                 </Button>
               </Link>
