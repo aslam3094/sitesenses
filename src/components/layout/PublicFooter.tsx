@@ -11,7 +11,7 @@ const PublicFooter = () => {
               <div className="flex h-8 w-8 items-center justify-center rounded-lg gradient-accent">
                 <Brain className="h-4 w-4 text-accent-foreground" />
               </div>
-              <span className="tracking-tight">KnowledgeBot</span>
+              <span className="tracking-tight">SiteSense</span>
             </Link>
             <p className="text-sm text-muted-foreground leading-relaxed max-w-xs">
               Transform your content into an intelligent AI chatbot that knows your business.
@@ -46,7 +46,7 @@ const PublicFooter = () => {
         </div>
 
         <div className="mt-16 pt-8 border-t border-border/40 text-center text-sm text-muted-foreground">
-          © {new Date().getFullYear()} KnowledgeBot. All rights reserved.
+          © {new Date().getFullYear()} SiteSense. All rights reserved.
         </div>
       </div>
     </footer>

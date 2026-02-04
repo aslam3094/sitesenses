@@ -20,7 +20,7 @@ const PublicNavbar = () => {
           <div className="flex h-8 w-8 items-center justify-center rounded-lg gradient-accent transition-shadow group-hover:shadow-glow">
             <Brain className="h-4 w-4 text-accent-foreground" />
           </div>
-          <span className="text-foreground font-semibold tracking-tight">KnowledgeBot</span>
+          <span className="text-foreground font-semibold tracking-tight">SiteSense</span>
         </Link>
 
         <nav className="hidden md:flex items-center gap-1">

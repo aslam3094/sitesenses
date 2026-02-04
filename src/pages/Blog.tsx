@@ -37,7 +37,7 @@ const Blog = () => {
         <div className="text-center mb-16 animate-fade-in">
           <h1 className="text-4xl font-bold mb-4">Blog</h1>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto mb-6">
-            Insights, tutorials, and updates from the KnowledgeBot team.
+            Insights, tutorials, and updates from the SiteSense team.
           </p>
           {isAdmin && (
             <Link to="/admin/blog">

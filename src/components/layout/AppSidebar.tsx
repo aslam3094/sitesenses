@@ -43,7 +43,7 @@ const AppSidebar = () => {
           </div>
           {!isCollapsed && (
             <div className="flex flex-col">
-              <span className="font-semibold text-sidebar-foreground tracking-tight">KnowledgeBot</span>
+              <span className="font-semibold text-sidebar-foreground tracking-tight">SiteSense</span>
               <span className="text-[10px] text-muted-foreground">AI Assistant</span>
             </div>
           )}
