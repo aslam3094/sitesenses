@@ -1,27 +1,65 @@
 import { useState, useRef, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Brain, Send, User, Bot, Loader2, AlertCircle } from "lucide-react";
+import { Brain, Trash2, Loader2 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
+import { ChatMessage } from "@/components/chat/ChatMessage";
+import { ChatInput } from "@/components/chat/ChatInput";
+import { EmptyChat } from "@/components/chat/EmptyChat";
+import { chatApi, ChatMessage as ChatMessageType } from "@/lib/api/chat";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
-interface Message {
+interface LocalMessage {
   id: string;
   role: "user" | "assistant";
   content: string;
   timestamp: Date;
+  persisted?: boolean;
 }
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat`;
 
 const Chatbot = () => {
   const { session } = useAuth();
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [input, setInput] = useState("");
+  const queryClient = useQueryClient();
+  const [messages, setMessages] = useState<LocalMessage[]>([]);
   const [loading, setLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  // Fetch chat history
+  const { data: history, isLoading: historyLoading } = useQuery({
+    queryKey: ['chat-history'],
+    queryFn: chatApi.fetchHistory,
+    enabled: !!session,
+  });
+
+  // Load history into local state
+  useEffect(() => {
+    if (history && history.length > 0) {
+      setMessages(history.map(msg => ({
+        id: msg.id,
+        role: msg.role as "user" | "assistant",
+        content: msg.content,
+        timestamp: new Date(msg.created_at),
+        persisted: true,
+      })));
+    }
+  }, [history]);
+
+  // Clear history mutation
+  const clearMutation = useMutation({
+    mutationFn: chatApi.clearHistory,
+    onSuccess: () => {
+      setMessages([]);
+      queryClient.invalidateQueries({ queryKey: ['chat-history'] });
+      toast.success('Chat history cleared');
+    },
+    onError: () => {
+      toast.error('Failed to clear history');
+    }
+  });
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -29,11 +67,10 @@ const Chatbot = () => {
     }
   }, [messages]);
 
-  const handleSend = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSend = async (input: string) => {
     if (!input.trim() || loading) return;
 
-    const userMessage: Message = {
+    const userMessage: LocalMessage = {
       id: crypto.randomUUID(),
       role: "user",
       content: input.trim(),
@@ -42,10 +79,13 @@ const Chatbot = () => {
 
     const updatedMessages = [...messages, userMessage];
     setMessages(updatedMessages);
-    setInput("");
     setLoading(true);
 
+    // Save user message to DB
+    chatApi.saveMessage('user', input.trim()).catch(console.error);
+
     let assistantContent = "";
+    const assistantId = crypto.randomUUID();
 
     try {
       const response = await fetch(CHAT_URL, {
@@ -76,7 +116,6 @@ const Chatbot = () => {
       let textBuffer = "";
 
       // Create assistant message placeholder
-      const assistantId = crypto.randomUUID();
       setMessages(prev => [...prev, {
         id: assistantId,
         role: "assistant",
@@ -117,7 +156,6 @@ const Chatbot = () => {
               );
             }
           } catch {
-            // Incomplete JSON, put back and wait for more
             textBuffer = line + "\n" + textBuffer;
             break;
           }
@@ -149,41 +187,66 @@ const Chatbot = () => {
           } catch { /* ignore */ }
         }
       }
+
+      // Save assistant message to DB
+      if (assistantContent) {
+        chatApi.saveMessage('assistant', assistantContent).catch(console.error);
+      }
+
     } catch (error) {
       console.error("Chat error:", error);
       const errorMessage = error instanceof Error ? error.message : "Failed to get response";
       toast.error(errorMessage);
       
-      // Add error message as assistant response
+      const fallbackContent = `I apologize, but I encountered an error while processing your request. Please try again or contact support if the issue persists.`;
+      
       setMessages(prev => {
         const lastMsg = prev[prev.length - 1];
         if (lastMsg?.role === "assistant" && !lastMsg.content) {
-          return prev.slice(0, -1).concat({
-            id: crypto.randomUUID(),
-            role: "assistant",
-            content: `Sorry, I encountered an error: ${errorMessage}. Please try again.`,
-            timestamp: new Date(),
-          });
+          return prev.map((m, i) => 
+            i === prev.length - 1 ? { ...m, content: fallbackContent } : m
+          );
         }
-        return prev.concat({
+        return [...prev, {
           id: crypto.randomUUID(),
           role: "assistant",
-          content: `Sorry, I encountered an error: ${errorMessage}. Please try again.`,
+          content: fallbackContent,
           timestamp: new Date(),
-        });
+        }];
       });
     } finally {
       setLoading(false);
     }
   };
 
+  if (historyLoading) {
+    return (
+      <div className="h-[calc(100vh-8rem)] flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
   return (
     <div className="h-[calc(100vh-8rem)] flex flex-col animate-fade-in">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold mb-2">AI Chatbot</h1>
-        <p className="text-muted-foreground">
-          Ask questions and get answers based on your knowledge sources.
-        </p>
+      <div className="mb-6 flex items-start justify-between">
+        <div>
+          <h1 className="text-3xl font-bold mb-2">AI Chatbot</h1>
+          <p className="text-muted-foreground">
+            Get instant answers from your knowledge base
+          </p>
+        </div>
+        {messages.length > 0 && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => clearMutation.mutate()}
+            disabled={clearMutation.isPending}
+          >
+            <Trash2 className="h-4 w-4 mr-2" />
+            Clear History
+          </Button>
+        )}
       </div>
 
       <Card className="flex-1 flex flex-col border-border/50 shadow-soft overflow-hidden">
@@ -195,7 +258,7 @@ const Chatbot = () => {
             <div>
               <CardTitle className="text-lg">Knowledge Assistant</CardTitle>
               <CardDescription className="text-xs">
-                Answers based only on your content
+                Powered by your content • Answers in seconds
               </CardDescription>
             </div>
           </div>
@@ -203,89 +266,27 @@ const Chatbot = () => {
 
         <ScrollArea ref={scrollRef} className="flex-1 p-4">
           {messages.length === 0 ? (
-            <div className="h-full flex items-center justify-center">
-              <div className="text-center max-w-md">
-                <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-accent/10 mx-auto mb-4">
-                  <Bot className="h-8 w-8 text-accent" />
-                </div>
-                <h3 className="font-semibold mb-2">Start a conversation</h3>
-                <p className="text-sm text-muted-foreground">
-                  Ask me anything about your knowledge base. I'll only provide
-                  answers based on the content you've added.
-                </p>
-              </div>
-            </div>
+            <EmptyChat />
           ) : (
             <div className="space-y-4">
               {messages.map((message) => (
-                <div
+                <ChatMessage
                   key={message.id}
-                  className={`flex gap-3 ${
-                    message.role === "user" ? "justify-end" : ""
-                  }`}
-                >
-                  {message.role === "assistant" && (
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg gradient-accent">
-                      <Bot className="h-4 w-4 text-accent-foreground" />
-                    </div>
-                  )}
-                  <div
-                    className={`max-w-[80%] rounded-2xl px-4 py-3 ${
-                      message.role === "user"
-                        ? "bg-accent text-accent-foreground"
-                        : "bg-muted"
-                    }`}
-                  >
-                    <p className="text-sm whitespace-pre-wrap">{message.content || (loading && message.role === "assistant" ? "..." : "")}</p>
-                    <p className="text-xs opacity-70 mt-1">
-                      {message.timestamp.toLocaleTimeString([], {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                    </p>
-                  </div>
-                  {message.role === "user" && (
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary">
-                      <User className="h-4 w-4 text-primary-foreground" />
-                    </div>
-                  )}
-                </div>
+                  role={message.role}
+                  content={message.content}
+                  timestamp={message.timestamp}
+                  isLoading={loading && message.role === "assistant" && !message.content}
+                />
               ))}
-              {loading && messages[messages.length - 1]?.role === "user" && (
-                <div className="flex gap-3">
-                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg gradient-accent">
-                    <Bot className="h-4 w-4 text-accent-foreground" />
-                  </div>
-                  <div className="bg-muted rounded-2xl px-4 py-3">
-                    <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
-                  </div>
-                </div>
-              )}
             </div>
           )}
         </ScrollArea>
 
         <CardContent className="border-t border-border p-4">
-          <form onSubmit={handleSend} className="flex gap-3">
-            <Input
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder="Ask a question about your content..."
-              disabled={loading}
-              className="flex-1"
-            />
-            <Button
-              type="submit"
-              disabled={loading || !input.trim()}
-              className="gradient-accent text-accent-foreground border-0 hover:opacity-90"
-            >
-              <Send className="h-4 w-4" />
-            </Button>
-          </form>
-          <div className="flex items-center gap-2 mt-3 text-xs text-muted-foreground">
-            <AlertCircle className="h-3 w-3" />
-            <span>Responses are based only on your knowledge sources</span>
-          </div>
+          <ChatInput onSend={handleSend} loading={loading} />
+          <p className="text-xs text-muted-foreground mt-3 text-center">
+            💡 Responses are generated exclusively from your knowledge sources
+          </p>
         </CardContent>
       </Card>
     </div>
