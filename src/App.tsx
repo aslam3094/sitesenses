@@ -21,6 +21,7 @@ import Dashboard from "@/pages/Dashboard";
 import Chatbot from "@/pages/Chatbot";
 import KnowledgeSources from "@/pages/KnowledgeSources";
 import Settings from "@/pages/Settings";
+import ChatWidget from "@/pages/ChatWidget";
 
 import NotFound from "@/pages/NotFound";
 
@@ -44,6 +45,9 @@ const App = () => (
 
             {/* Auth Route */}
             <Route path="/auth" element={<Auth />} />
+
+            {/* Widget Route (standalone, no layout) */}
+            <Route path="/widget" element={<ChatWidget />} />
 
             {/* Protected Routes */}
             <Route element={<AppLayout />}>

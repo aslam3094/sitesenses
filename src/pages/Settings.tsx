@@ -1,5 +1,6 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/hooks/useAuth";
+import { EmbedCodeSection } from "@/components/embed/EmbedCodeSection";
 
 const Settings = () => {
   const { user } = useAuth();
@@ -9,9 +10,12 @@ const Settings = () => {
       <div>
         <h1 className="text-3xl font-bold mb-2">Settings</h1>
         <p className="text-muted-foreground">
-          Manage your account and preferences.
+          Manage your account and embed your chatbot.
         </p>
       </div>
+
+      {/* Embed Widget Section */}
+      <EmbedCodeSection />
 
       <Card className="border-border/50 shadow-soft">
         <CardHeader>
