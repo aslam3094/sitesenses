@@ -1,5 +1,4 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Database, MessageSquare, Globe, TrendingUp, Plus } from "lucide-react";
+import { Database, MessageSquare, Globe, TrendingUp, Plus, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
@@ -43,75 +42,72 @@ const Dashboard = () => {
   ];
 
   return (
-    <div className="space-y-8 animate-fade-in">
+    <div className="space-y-8 page-transition">
+      {/* Header */}
       <div>
         <h1 className="text-3xl font-bold mb-2">
-          Welcome back{user?.email ? `, ${user.email.split("@")[0]}` : ""}!
+          Welcome back{user?.email ? `, ${user.email.split("@")[0]}` : ""}
         </h1>
         <p className="text-muted-foreground">
           Here's an overview of your AI knowledge base.
         </p>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      {/* Stats Grid */}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {stats.map((stat, i) => (
-          <Card key={i} className="border-border/50 shadow-soft">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
+          <div 
+            key={i} 
+            className="p-5 rounded-xl bg-card border border-border/60 shadow-card animate-fade-in-up"
+            style={{ animationDelay: `${i * 0.08}s` }}
+          >
+            <div className="flex items-center justify-between mb-4">
+              <span className="text-sm font-medium text-muted-foreground">
                 {stat.title}
-              </CardTitle>
+              </span>
               <div className={`flex h-8 w-8 items-center justify-center rounded-lg ${stat.bg}`}>
                 <stat.icon className={`h-4 w-4 ${stat.color}`} />
               </div>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stat.value}</div>
-              <p className="text-xs text-muted-foreground">{stat.description}</p>
-            </CardContent>
-          </Card>
+            </div>
+            <div className="text-2xl font-bold mb-0.5">{stat.value}</div>
+            <p className="text-xs text-muted-foreground">{stat.description}</p>
+          </div>
         ))}
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2">
-        <Card className="border-border/50 shadow-soft">
-          <CardHeader>
-            <CardTitle>Get Started</CardTitle>
-            <CardDescription>
-              Add your first knowledge source to start building your AI chatbot.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <Link to="/knowledge">
-              <Button className="w-full gradient-accent text-accent-foreground border-0 hover:opacity-90">
-                <Plus className="mr-2 h-4 w-4" />
-                Add Knowledge Source
-              </Button>
-            </Link>
-            <p className="text-sm text-muted-foreground text-center">
-              You can add website URLs or upload documents (PDF, TXT, MD)
-            </p>
-          </CardContent>
-        </Card>
+      {/* Quick Actions */}
+      <div className="grid gap-5 md:grid-cols-2">
+        <div className="p-6 rounded-xl bg-card border border-border/60 shadow-card animate-fade-in-up stagger-4">
+          <h3 className="text-lg font-semibold mb-2">Get Started</h3>
+          <p className="text-sm text-muted-foreground mb-5">
+            Add your first knowledge source to start building your AI chatbot.
+          </p>
+          <Link to="/knowledge">
+            <Button className="w-full gradient-accent text-accent-foreground">
+              <Plus className="mr-2 h-4 w-4" />
+              Add Knowledge Source
+            </Button>
+          </Link>
+          <p className="text-xs text-muted-foreground text-center mt-3">
+            Add website URLs or upload documents (PDF, TXT, MD)
+          </p>
+        </div>
 
-        <Card className="border-border/50 shadow-soft">
-          <CardHeader>
-            <CardTitle>Try Your Chatbot</CardTitle>
-            <CardDescription>
-              Test your AI assistant and see how it answers questions.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <Link to="/chatbot">
-              <Button variant="outline" className="w-full">
-                <MessageSquare className="mr-2 h-4 w-4" />
-                Open Chatbot
-              </Button>
-            </Link>
-            <p className="text-sm text-muted-foreground text-center">
-              Your chatbot will only answer based on your knowledge sources
-            </p>
-          </CardContent>
-        </Card>
+        <div className="p-6 rounded-xl bg-card border border-border/60 shadow-card animate-fade-in-up stagger-5">
+          <h3 className="text-lg font-semibold mb-2">Try Your Chatbot</h3>
+          <p className="text-sm text-muted-foreground mb-5">
+            Test your AI assistant and see how it answers questions.
+          </p>
+          <Link to="/chatbot">
+            <Button variant="outline" className="w-full">
+              <MessageSquare className="mr-2 h-4 w-4" />
+              Open Chatbot
+            </Button>
+          </Link>
+          <p className="text-xs text-muted-foreground text-center mt-3">
+            Your chatbot will only answer based on your knowledge sources
+          </p>
+        </div>
       </div>
     </div>
   );

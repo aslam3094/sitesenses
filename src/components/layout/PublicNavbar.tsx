@@ -14,13 +14,13 @@ const PublicNavbar = () => {
   ];
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border/50 bg-background/80 backdrop-blur-xl">
+    <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center justify-between">
         <Link to="/" className="flex items-center gap-2.5 font-semibold text-lg group">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl gradient-accent shadow-sm group-hover:shadow-glow transition-shadow duration-300">
-            <Brain className="h-5 w-5 text-accent-foreground" />
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg gradient-accent transition-shadow group-hover:shadow-glow">
+            <Brain className="h-4 w-4 text-accent-foreground" />
           </div>
-          <span className="text-foreground font-bold">KnowledgeBot</span>
+          <span className="text-foreground font-semibold tracking-tight">KnowledgeBot</span>
         </Link>
 
         <nav className="hidden md:flex items-center gap-1">
@@ -28,7 +28,7 @@ const PublicNavbar = () => {
             <Link
               key={link.name}
               to={link.href}
-              className={`px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
+              className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors duration-200 ${
                 location.pathname === link.href
                   ? "text-foreground bg-muted"
                   : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
@@ -41,12 +41,12 @@ const PublicNavbar = () => {
 
         <div className="hidden md:flex items-center gap-3">
           <Link to="/auth">
-            <Button variant="ghost" size="sm">
+            <Button variant="ghost" size="sm" className="text-muted-foreground">
               Sign in
             </Button>
           </Link>
           <Link to="/auth?mode=signup">
-            <Button size="sm" variant="accent" className="shadow-sm hover:shadow-glow">
+            <Button size="sm" variant="accent">
               Get Started
             </Button>
           </Link>
@@ -67,7 +67,7 @@ const PublicNavbar = () => {
 
       {/* Mobile menu */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-t border-border/50 bg-background/95 backdrop-blur-xl animate-fade-in">
+        <div className="md:hidden border-t border-border/40 bg-background/95 backdrop-blur-xl animate-fade-in">
           <nav className="container py-4 space-y-1">
             {navLinks.map((link) => (
               <Link
@@ -83,7 +83,7 @@ const PublicNavbar = () => {
                 {link.name}
               </Link>
             ))}
-            <div className="pt-4 space-y-2">
+            <div className="pt-4 flex flex-col gap-2">
               <Link to="/auth" onClick={() => setMobileMenuOpen(false)}>
                 <Button variant="outline" className="w-full">
                   Sign in

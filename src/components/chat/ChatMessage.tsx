@@ -19,16 +19,19 @@ export const ChatMessage = ({ role, content, timestamp, isLoading }: ChatMessage
     NO_INFO_PHRASES.some(phrase => content.toLowerCase().includes(phrase));
 
   return (
-    <div className={`flex gap-3 ${role === "user" ? "justify-end" : ""} animate-fade-in-up`}>
+    <div 
+      className={`flex gap-3 ${role === "user" ? "justify-end" : ""}`}
+      style={{ animation: 'fadeInUp 0.3s ease-out forwards' }}
+    >
       {role === "assistant" && (
-        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl gradient-accent shadow-sm">
+        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg gradient-accent">
           <Bot className="h-4 w-4 text-accent-foreground" />
         </div>
       )}
-      <div className={`max-w-[80%] ${role === "user" ? "" : "space-y-2"}`}>
+      <div className={`max-w-[80%] ${role === "user" ? "" : "space-y-1.5"}`}>
         {/* Response label for assistant messages */}
         {role === "assistant" && content && !isLoading && (
-          <div className={`flex items-center gap-1.5 text-xs font-medium ${
+          <div className={`flex items-center gap-1.5 text-[10px] font-medium ${
             isNoInfoResponse ? "text-warning" : "text-success"
           }`}>
             {isNoInfoResponse ? (
@@ -45,7 +48,7 @@ export const ChatMessage = ({ role, content, timestamp, isLoading }: ChatMessage
           </div>
         )}
         <div
-          className={`rounded-2xl px-4 py-3 shadow-sm ${
+          className={`rounded-2xl px-4 py-3 ${
             role === "user"
               ? "chat-bubble-user"
               : isNoInfoResponse
@@ -62,7 +65,7 @@ export const ChatMessage = ({ role, content, timestamp, isLoading }: ChatMessage
           ) : (
             <p className="text-sm whitespace-pre-wrap leading-relaxed">{content}</p>
           )}
-          <p className="text-[10px] opacity-60 mt-2 font-medium">
+          <p className="text-[10px] opacity-50 mt-2">
             {timestamp.toLocaleTimeString([], {
               hour: "2-digit",
               minute: "2-digit",
@@ -71,7 +74,7 @@ export const ChatMessage = ({ role, content, timestamp, isLoading }: ChatMessage
         </div>
       </div>
       {role === "user" && (
-        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary shadow-sm">
+        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary">
           <User className="h-4 w-4 text-primary-foreground" />
         </div>
       )}
@@ -83,11 +86,11 @@ export const ChatMessage = ({ role, content, timestamp, isLoading }: ChatMessage
 export const TypingIndicator = () => {
   return (
     <div className="flex gap-3 animate-fade-in">
-      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl gradient-accent shadow-sm">
+      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg gradient-accent">
         <Bot className="h-4 w-4 text-accent-foreground" />
       </div>
-      <div className="bg-muted rounded-2xl rounded-bl-md px-4 py-3 shadow-sm">
-        <div className="flex items-center gap-1.5">
+      <div className="bg-muted rounded-2xl rounded-bl-sm px-4 py-3">
+        <div className="flex items-center gap-1">
           <div className="typing-dot" />
           <div className="typing-dot" />
           <div className="typing-dot" />

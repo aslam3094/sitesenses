@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { LayoutDashboard, MessageSquare, Database, Settings, LogOut, Brain, ChevronLeft, ChevronRight, Sparkles, FileText } from "lucide-react";
+import { LayoutDashboard, MessageSquare, Database, Settings, LogOut, Brain, ChevronLeft, ChevronRight, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Sidebar,
@@ -38,13 +38,13 @@ const AppSidebar = () => {
     <Sidebar collapsible="icon" className="border-r border-sidebar-border bg-sidebar">
       <SidebarHeader className="border-b border-sidebar-border p-4">
         <Link to="/dashboard" className="flex items-center gap-2.5 group">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl gradient-accent shadow-sm group-hover:shadow-glow transition-shadow duration-300">
-            <Brain className="h-5 w-5 text-accent-foreground" />
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg gradient-accent transition-shadow group-hover:shadow-glow">
+            <Brain className="h-4 w-4 text-accent-foreground" />
           </div>
           {!isCollapsed && (
             <div className="flex flex-col">
-              <span className="font-bold text-sidebar-foreground">KnowledgeBot</span>
-              <span className="text-[10px] text-muted-foreground font-medium">AI Assistant</span>
+              <span className="font-semibold text-sidebar-foreground tracking-tight">KnowledgeBot</span>
+              <span className="text-[10px] text-muted-foreground">AI Assistant</span>
             </div>
           )}
         </Link>
@@ -65,14 +65,14 @@ const AppSidebar = () => {
                     >
                       <Link
                         to={item.url}
-                        className={`flex items-center gap-3 rounded-xl px-3 py-2.5 transition-all duration-200 ${
+                        className={`flex items-center gap-3 rounded-lg px-3 py-2.5 transition-all duration-200 ${
                           isActive
-                            ? "bg-accent text-accent-foreground shadow-sm"
+                            ? "bg-accent text-accent-foreground"
                             : "text-sidebar-foreground hover:bg-sidebar-accent"
                         }`}
                       >
-                        <item.icon className="h-5 w-5 shrink-0" />
-                        <span className="font-medium">{item.title}</span>
+                        <item.icon className="h-4 w-4 shrink-0" />
+                        <span className="font-medium text-sm">{item.title}</span>
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
@@ -86,7 +86,7 @@ const AppSidebar = () => {
           <SidebarGroup className="mt-6">
             {!isCollapsed && (
               <div className="px-3 mb-2">
-                <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Admin</span>
+                <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Admin</span>
               </div>
             )}
             <SidebarGroupContent>
@@ -102,14 +102,14 @@ const AppSidebar = () => {
                       >
                         <Link
                           to={item.url}
-                          className={`flex items-center gap-3 rounded-xl px-3 py-2.5 transition-all duration-200 ${
+                          className={`flex items-center gap-3 rounded-lg px-3 py-2.5 transition-all duration-200 ${
                             isActive
-                              ? "bg-accent text-accent-foreground shadow-sm"
+                              ? "bg-accent text-accent-foreground"
                               : "text-sidebar-foreground hover:bg-sidebar-accent"
                           }`}
                         >
-                          <item.icon className="h-5 w-5 shrink-0" />
-                          <span className="font-medium">{item.title}</span>
+                          <item.icon className="h-4 w-4 shrink-0" />
+                          <span className="font-medium text-sm">{item.title}</span>
                         </Link>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
@@ -122,32 +122,25 @@ const AppSidebar = () => {
       </SidebarContent>
 
       <SidebarFooter className="border-t border-sidebar-border p-3">
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-1.5">
           {!isCollapsed && user && (
-            <div className="px-3 py-2 rounded-lg bg-sidebar-accent/50">
-              <div className="flex items-center gap-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent/10">
-                  <Sparkles className="h-4 w-4 text-accent" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs font-medium text-sidebar-foreground truncate">{user.email}</p>
-                  <p className="text-[10px] text-muted-foreground">Free Plan</p>
-                </div>
-              </div>
+            <div className="px-3 py-2.5 rounded-lg bg-sidebar-accent/50 mb-2">
+              <p className="text-xs font-medium text-sidebar-foreground truncate">{user.email}</p>
+              <p className="text-[10px] text-muted-foreground">Free Plan</p>
             </div>
           )}
           <Button
             variant="ghost"
             size="sm"
             onClick={toggleSidebar}
-            className="w-full justify-start gap-3 text-sidebar-foreground hover:bg-sidebar-accent rounded-xl"
+            className="w-full justify-start gap-3 text-sidebar-foreground hover:bg-sidebar-accent rounded-lg h-9"
           >
             {isCollapsed ? (
               <ChevronRight className="h-4 w-4" />
             ) : (
               <>
                 <ChevronLeft className="h-4 w-4" />
-                <span>Collapse</span>
+                <span className="text-sm">Collapse</span>
               </>
             )}
           </Button>
@@ -155,10 +148,10 @@ const AppSidebar = () => {
             variant="ghost"
             size="sm"
             onClick={signOut}
-            className="w-full justify-start gap-3 text-sidebar-foreground hover:bg-destructive/10 hover:text-destructive rounded-xl"
+            className="w-full justify-start gap-3 text-sidebar-foreground hover:bg-destructive/10 hover:text-destructive rounded-lg h-9"
           >
             <LogOut className="h-4 w-4" />
-            {!isCollapsed && <span>Sign out</span>}
+            {!isCollapsed && <span className="text-sm">Sign out</span>}
           </Button>
         </div>
       </SidebarFooter>

@@ -3,7 +3,6 @@ import { Link, useSearchParams, Navigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Brain, Loader2, Mail, Lock, ArrowRight } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { z } from "zod";
@@ -31,7 +30,6 @@ const Auth = () => {
     e.preventDefault();
     setErrors({});
 
-    // Validate inputs
     const result = authSchema.safeParse({ email, password });
     if (!result.success) {
       const fieldErrors: { email?: string; password?: string } = {};
@@ -55,118 +53,119 @@ const Auth = () => {
   if (authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
-        <Loader2 className="h-8 w-8 animate-spin text-accent" />
+        <Loader2 className="h-6 w-6 animate-spin text-accent" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-muted/30 p-4">
-      <div className="w-full max-w-md animate-fade-in">
-        <div className="text-center mb-8">
-          <Link to="/" className="inline-flex items-center gap-2 font-semibold text-xl mb-2">
+    <div className="min-h-screen flex items-center justify-center bg-muted/20 p-4">
+      <div className="w-full max-w-sm animate-fade-in">
+        {/* Logo */}
+        <div className="text-center mb-10">
+          <Link to="/" className="inline-flex items-center gap-2.5 font-semibold text-xl mb-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl gradient-accent">
-              <Brain className="h-6 w-6 text-accent-foreground" />
+              <Brain className="h-5 w-5 text-accent-foreground" />
             </div>
-            <span>KnowledgeBot</span>
+            <span className="tracking-tight">KnowledgeBot</span>
           </Link>
-          <p className="text-muted-foreground">
+          <p className="text-muted-foreground text-sm">
             {isSignUp ? "Create your account" : "Welcome back"}
           </p>
         </div>
 
-        <Card className="shadow-elevated border-border/50">
-          <CardHeader className="text-center">
-            <CardTitle className="text-2xl">
+        {/* Form Card */}
+        <div className="bg-card border border-border/60 rounded-2xl p-8 shadow-card">
+          <div className="text-center mb-8">
+            <h1 className="text-2xl font-semibold mb-1">
               {isSignUp ? "Sign up" : "Sign in"}
-            </CardTitle>
-            <CardDescription>
+            </h1>
+            <p className="text-sm text-muted-foreground">
               {isSignUp
                 ? "Start building your AI-powered knowledge base"
                 : "Sign in to access your dashboard"}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="you@example.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className={`pl-10 ${errors.email ? "border-destructive" : ""}`}
-                    disabled={loading}
-                  />
-                </div>
-                {errors.email && (
-                  <p className="text-sm text-destructive">{errors.email}</p>
-                )}
+            </p>
+          </div>
+          
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div className="space-y-2">
+              <Label htmlFor="email" className="text-sm font-medium">Email</Label>
+              <div className="relative">
+                <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="you@example.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className={`pl-10 h-11 ${errors.email ? "border-destructive" : ""}`}
+                  disabled={loading}
+                />
               </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    id="password"
-                    type="password"
-                    placeholder="••••••••"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className={`pl-10 ${errors.password ? "border-destructive" : ""}`}
-                    disabled={loading}
-                  />
-                </div>
-                {errors.password && (
-                  <p className="text-sm text-destructive">{errors.password}</p>
-                )}
-              </div>
-
-              <Button
-                type="submit"
-                className="w-full gradient-accent text-accent-foreground border-0 hover:opacity-90"
-                disabled={loading}
-              >
-                {loading ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <>
-                    {isSignUp ? "Create account" : "Sign in"}
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </>
-                )}
-              </Button>
-            </form>
-
-            <div className="mt-6 text-center text-sm">
-              {isSignUp ? (
-                <p className="text-muted-foreground">
-                  Already have an account?{" "}
-                  <Link
-                    to="/auth"
-                    className="font-medium text-accent hover:underline"
-                  >
-                    Sign in
-                  </Link>
-                </p>
-              ) : (
-                <p className="text-muted-foreground">
-                  Don't have an account?{" "}
-                  <Link
-                    to="/auth?mode=signup"
-                    className="font-medium text-accent hover:underline"
-                  >
-                    Sign up
-                  </Link>
-                </p>
+              {errors.email && (
+                <p className="text-xs text-destructive">{errors.email}</p>
               )}
             </div>
-          </CardContent>
-        </Card>
+
+            <div className="space-y-2">
+              <Label htmlFor="password" className="text-sm font-medium">Password</Label>
+              <div className="relative">
+                <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  id="password"
+                  type="password"
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className={`pl-10 h-11 ${errors.password ? "border-destructive" : ""}`}
+                  disabled={loading}
+                />
+              </div>
+              {errors.password && (
+                <p className="text-xs text-destructive">{errors.password}</p>
+              )}
+            </div>
+
+            <Button
+              type="submit"
+              className="w-full h-11 gradient-accent text-accent-foreground"
+              disabled={loading}
+            >
+              {loading ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <>
+                  {isSignUp ? "Create account" : "Sign in"}
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </>
+              )}
+            </Button>
+          </form>
+
+          <div className="mt-8 text-center text-sm">
+            {isSignUp ? (
+              <p className="text-muted-foreground">
+                Already have an account?{" "}
+                <Link
+                  to="/auth"
+                  className="font-medium text-foreground hover:text-accent transition-colors"
+                >
+                  Sign in
+                </Link>
+              </p>
+            ) : (
+              <p className="text-muted-foreground">
+                Don't have an account?{" "}
+                <Link
+                  to="/auth?mode=signup"
+                  className="font-medium text-foreground hover:text-accent transition-colors"
+                >
+                  Sign up
+                </Link>
+              </p>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -1,5 +1,4 @@
 import { useState, useRef, useEffect } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Brain, Trash2, Loader2, Sparkles } from "lucide-react";
@@ -230,7 +229,7 @@ const Chatbot = () => {
     return (
       <div className="h-[calc(100vh-8rem)] flex items-center justify-center">
         <div className="text-center animate-fade-in">
-          <Loader2 className="h-8 w-8 animate-spin text-accent mx-auto mb-3" />
+          <Loader2 className="h-6 w-6 animate-spin text-accent mx-auto mb-3" />
           <p className="text-sm text-muted-foreground">Loading conversation...</p>
         </div>
       </div>
@@ -239,16 +238,17 @@ const Chatbot = () => {
 
   return (
     <div className="h-[calc(100vh-8rem)] flex flex-col page-transition">
+      {/* Header */}
       <div className="mb-6 flex items-start justify-between">
         <div>
-          <div className="flex items-center gap-2 mb-2">
-            <h1 className="text-3xl font-bold">AI Chatbot</h1>
-            <div className="flex h-6 items-center px-2 rounded-full bg-accent/10 border border-accent/20">
-              <Sparkles className="h-3 w-3 text-accent mr-1" />
+          <div className="flex items-center gap-3 mb-2">
+            <h1 className="text-2xl font-bold">AI Chatbot</h1>
+            <div className="flex h-6 items-center px-2.5 rounded-full bg-accent/10 border border-accent/20">
+              <Sparkles className="h-3 w-3 text-accent mr-1.5" />
               <span className="text-xs font-medium text-accent">AI Powered</span>
             </div>
           </div>
-          <p className="text-muted-foreground">
+          <p className="text-sm text-muted-foreground">
             Get instant answers from your knowledge base
           </p>
         </div>
@@ -258,30 +258,32 @@ const Chatbot = () => {
             size="sm"
             onClick={() => clearMutation.mutate()}
             disabled={clearMutation.isPending}
-            className="hover-lift"
           >
             <Trash2 className="h-4 w-4 mr-2" />
-            Clear History
+            Clear
           </Button>
         )}
       </div>
 
-      <Card className="flex-1 flex flex-col border-border/50 shadow-soft overflow-hidden card-premium">
-        <CardHeader className="border-b border-border/50 py-4 bg-gradient-to-r from-muted/30 to-transparent">
+      {/* Chat Container */}
+      <div className="flex-1 flex flex-col rounded-2xl border border-border/60 bg-card shadow-card overflow-hidden">
+        {/* Chat Header */}
+        <div className="border-b border-border/60 px-5 py-4 bg-muted/30">
           <div className="flex items-center gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-xl gradient-accent shadow-sm">
-              <Brain className="h-5 w-5 text-accent-foreground" />
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl gradient-accent">
+              <Brain className="h-4 w-4 text-accent-foreground" />
             </div>
             <div>
-              <CardTitle className="text-lg">Knowledge Assistant</CardTitle>
-              <CardDescription className="text-xs">
-                Powered by your content • Answers in seconds
-              </CardDescription>
+              <h3 className="font-semibold text-sm">Knowledge Assistant</h3>
+              <p className="text-xs text-muted-foreground">
+                Powered by your content
+              </p>
             </div>
           </div>
-        </CardHeader>
+        </div>
 
-        <ScrollArea ref={scrollRef} className="flex-1 p-4">
+        {/* Messages */}
+        <ScrollArea ref={scrollRef} className="flex-1 p-5">
           {messages.length === 0 ? (
             <EmptyChat />
           ) : (
@@ -302,13 +304,14 @@ const Chatbot = () => {
           )}
         </ScrollArea>
 
-        <CardContent className="border-t border-border/50 p-4 bg-gradient-to-r from-muted/20 to-transparent">
+        {/* Input */}
+        <div className="border-t border-border/60 p-4 bg-muted/20">
           <ChatInput onSend={handleSend} loading={loading} />
-          <p className="text-[11px] text-muted-foreground mt-3 text-center">
-            💡 Responses are generated exclusively from your knowledge sources
+          <p className="text-[10px] text-muted-foreground mt-3 text-center">
+            Responses are generated exclusively from your knowledge sources
           </p>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 };
