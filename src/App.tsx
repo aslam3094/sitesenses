@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
+import { HelmetProvider } from "react-helmet-async";
 
 // Layouts
 import PublicLayout from "@/components/layout/PublicLayout";
@@ -21,6 +22,7 @@ import Dashboard from "@/pages/Dashboard";
 import Chatbot from "@/pages/Chatbot";
 import KnowledgeSources from "@/pages/KnowledgeSources";
 import Settings from "@/pages/Settings";
+import AdminBlog from "@/pages/AdminBlog";
 import ChatWidget from "@/pages/ChatWidget";
 
 import NotFound from "@/pages/NotFound";
@@ -28,6 +30,7 @@ import NotFound from "@/pages/NotFound";
 const queryClient = new QueryClient();
 
 const App = () => (
+  <HelmetProvider>
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
@@ -55,6 +58,7 @@ const App = () => (
               <Route path="/chatbot" element={<Chatbot />} />
               <Route path="/knowledge" element={<KnowledgeSources />} />
               <Route path="/settings" element={<Settings />} />
+              <Route path="/admin/blog" element={<AdminBlog />} />
             </Route>
 
             {/* Catch-all */}
@@ -64,6 +68,7 @@ const App = () => (
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
+  </HelmetProvider>
 );
 
 export default App;
