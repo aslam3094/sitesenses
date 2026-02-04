@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { LayoutDashboard, MessageSquare, Database, Settings, LogOut, Brain, ChevronLeft, ChevronRight } from "lucide-react";
+import { LayoutDashboard, MessageSquare, Database, Settings, LogOut, Brain, ChevronLeft, ChevronRight, Sparkles, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Sidebar,
@@ -14,6 +14,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { useAuth } from "@/hooks/useAuth";
+import { useIsAdmin } from "@/hooks/useIsAdmin";
 
 const navItems = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
@@ -22,29 +23,37 @@ const navItems = [
   { title: "Settings", url: "/settings", icon: Settings },
 ];
 
+const adminItems = [
+  { title: "Blog Management", url: "/admin/blog", icon: FileText },
+];
+
 const AppSidebar = () => {
   const location = useLocation();
   const { signOut, user } = useAuth();
+  const { isAdmin } = useIsAdmin();
   const { state, toggleSidebar } = useSidebar();
   const isCollapsed = state === "collapsed";
 
   return (
-    <Sidebar collapsible="icon" className="border-r border-sidebar-border">
+    <Sidebar collapsible="icon" className="border-r border-sidebar-border bg-sidebar">
       <SidebarHeader className="border-b border-sidebar-border p-4">
-        <Link to="/dashboard" className="flex items-center gap-2">
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg gradient-accent">
+        <Link to="/dashboard" className="flex items-center gap-2.5 group">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl gradient-accent shadow-sm group-hover:shadow-glow transition-shadow duration-300">
             <Brain className="h-5 w-5 text-accent-foreground" />
           </div>
           {!isCollapsed && (
-            <span className="font-semibold text-sidebar-foreground">KnowledgeBot</span>
+            <div className="flex flex-col">
+              <span className="font-bold text-sidebar-foreground">KnowledgeBot</span>
+              <span className="text-[10px] text-muted-foreground font-medium">AI Assistant</span>
+            </div>
           )}
         </Link>
       </SidebarHeader>
 
-      <SidebarContent className="p-2">
+      <SidebarContent className="p-3">
         <SidebarGroup>
           <SidebarGroupContent>
-            <SidebarMenu>
+            <SidebarMenu className="space-y-1">
               {navItems.map((item) => {
                 const isActive = location.pathname === item.url;
                 return (
@@ -56,14 +65,14 @@ const AppSidebar = () => {
                     >
                       <Link
                         to={item.url}
-                        className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-colors ${
+                        className={`flex items-center gap-3 rounded-xl px-3 py-2.5 transition-all duration-200 ${
                           isActive
-                            ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                            : "text-sidebar-foreground hover:bg-sidebar-accent/10"
+                            ? "bg-accent text-accent-foreground shadow-sm"
+                            : "text-sidebar-foreground hover:bg-sidebar-accent"
                         }`}
                       >
                         <item.icon className="h-5 w-5 shrink-0" />
-                        <span>{item.title}</span>
+                        <span className="font-medium">{item.title}</span>
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
@@ -72,20 +81,66 @@ const AppSidebar = () => {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+
+        {isAdmin && (
+          <SidebarGroup className="mt-6">
+            {!isCollapsed && (
+              <div className="px-3 mb-2">
+                <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Admin</span>
+              </div>
+            )}
+            <SidebarGroupContent>
+              <SidebarMenu className="space-y-1">
+                {adminItems.map((item) => {
+                  const isActive = location.pathname === item.url;
+                  return (
+                    <SidebarMenuItem key={item.title}>
+                      <SidebarMenuButton
+                        asChild
+                        isActive={isActive}
+                        tooltip={item.title}
+                      >
+                        <Link
+                          to={item.url}
+                          className={`flex items-center gap-3 rounded-xl px-3 py-2.5 transition-all duration-200 ${
+                            isActive
+                              ? "bg-accent text-accent-foreground shadow-sm"
+                              : "text-sidebar-foreground hover:bg-sidebar-accent"
+                          }`}
+                        >
+                          <item.icon className="h-5 w-5 shrink-0" />
+                          <span className="font-medium">{item.title}</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  );
+                })}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
       </SidebarContent>
 
-      <SidebarFooter className="border-t border-sidebar-border p-2">
+      <SidebarFooter className="border-t border-sidebar-border p-3">
         <div className="flex flex-col gap-2">
           {!isCollapsed && user && (
-            <div className="px-3 py-2">
-              <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+            <div className="px-3 py-2 rounded-lg bg-sidebar-accent/50">
+              <div className="flex items-center gap-2">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent/10">
+                  <Sparkles className="h-4 w-4 text-accent" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-medium text-sidebar-foreground truncate">{user.email}</p>
+                  <p className="text-[10px] text-muted-foreground">Free Plan</p>
+                </div>
+              </div>
             </div>
           )}
           <Button
             variant="ghost"
             size="sm"
             onClick={toggleSidebar}
-            className="w-full justify-start gap-3 text-sidebar-foreground hover:bg-sidebar-accent/10"
+            className="w-full justify-start gap-3 text-sidebar-foreground hover:bg-sidebar-accent rounded-xl"
           >
             {isCollapsed ? (
               <ChevronRight className="h-4 w-4" />
@@ -100,7 +155,7 @@ const AppSidebar = () => {
             variant="ghost"
             size="sm"
             onClick={signOut}
-            className="w-full justify-start gap-3 text-sidebar-foreground hover:bg-destructive/10 hover:text-destructive"
+            className="w-full justify-start gap-3 text-sidebar-foreground hover:bg-destructive/10 hover:text-destructive rounded-xl"
           >
             <LogOut className="h-4 w-4" />
             {!isCollapsed && <span>Sign out</span>}
