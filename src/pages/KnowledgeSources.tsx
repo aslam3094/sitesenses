@@ -1,24 +1,58 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Globe, Upload, FileText, Trash2, Link2, Loader2, Plus, Database } from "lucide-react";
+import { Globe, Upload, FileText, Trash2, Link2, Loader2, Plus, Database, CheckCircle2, AlertCircle, Clock } from "lucide-react";
 import { toast } from "sonner";
-
-interface KnowledgeSource {
-  id: string;
-  type: "url" | "document";
-  name: string;
-  status: "pending" | "processing" | "indexed" | "error";
-  createdAt: Date;
-}
+import { knowledgeApi, KnowledgeSource } from "@/lib/api/knowledge";
+import { useAuth } from "@/hooks/useAuth";
 
 const KnowledgeSources = () => {
+  const { user } = useAuth();
   const [sources, setSources] = useState<KnowledgeSource[]>([]);
   const [url, setUrl] = useState("");
   const [loading, setLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [fetching, setFetching] = useState(true);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Fetch sources on mount
+  const fetchSources = useCallback(async () => {
+    try {
+      const data = await knowledgeApi.fetchSources();
+      setSources(data);
+    } catch (error) {
+      console.error('Error fetching sources:', error);
+      toast.error('Failed to load knowledge sources');
+    } finally {
+      setFetching(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (user) {
+      fetchSources();
+
+      // Subscribe to realtime updates
+      const subscription = knowledgeApi.subscribeToUpdates((updatedSource) => {
+        setSources(prev => 
+          prev.map(s => s.id === updatedSource.id ? updatedSource : s)
+        );
+        
+        // Show toast for status changes
+        if (updatedSource.status === 'completed') {
+          toast.success(`${updatedSource.name} processed successfully`);
+        } else if (updatedSource.status === 'error') {
+          toast.error(`Failed to process ${updatedSource.name}: ${updatedSource.error_message}`);
+        }
+      });
+
+      return () => {
+        subscription.unsubscribe();
+      };
+    }
+  }, [user, fetchSources]);
 
   const handleAddUrl = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,7 +60,7 @@ const KnowledgeSources = () => {
 
     // Basic URL validation
     try {
-      new URL(url);
+      new URL(url.startsWith('http') ? url : `https://${url}`);
     } catch {
       toast.error("Please enter a valid URL");
       return;
@@ -34,63 +68,85 @@ const KnowledgeSources = () => {
 
     setLoading(true);
     
-    // Simulate adding URL
-    setTimeout(() => {
-      const newSource: KnowledgeSource = {
-        id: crypto.randomUUID(),
-        type: "url",
-        name: url,
-        status: "pending",
-        createdAt: new Date(),
-      };
+    try {
+      const newSource = await knowledgeApi.addUrl(url);
       setSources([newSource, ...sources]);
       setUrl("");
+      toast.success("URL added - scraping in progress");
+    } catch (error) {
+      console.error('Error adding URL:', error);
+      toast.error("Failed to add URL");
+    } finally {
       setLoading(false);
-      toast.success("URL added to knowledge base");
-    }, 1000);
+    }
   };
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
-    if (!files) return;
+    if (!files || files.length === 0) return;
 
     const validTypes = [".pdf", ".txt", ".md"];
-    const newSources: KnowledgeSource[] = [];
+    const maxSize = 10 * 1024 * 1024; // 10MB
 
-    Array.from(files).forEach((file) => {
+    setUploading(true);
+
+    for (const file of Array.from(files)) {
       const ext = "." + file.name.split(".").pop()?.toLowerCase();
+      
       if (!validTypes.includes(ext)) {
         toast.error(`Invalid file type: ${file.name}. Allowed: PDF, TXT, MD`);
-        return;
+        continue;
       }
 
-      newSources.push({
-        id: crypto.randomUUID(),
-        type: "document",
-        name: file.name,
-        status: "pending",
-        createdAt: new Date(),
-      });
-    });
+      if (file.size > maxSize) {
+        toast.error(`File too large: ${file.name}. Max size: 10MB`);
+        continue;
+      }
 
-    if (newSources.length > 0) {
-      setSources([...newSources, ...sources]);
-      toast.success(`${newSources.length} file(s) uploaded`);
+      try {
+        const newSource = await knowledgeApi.uploadDocument(file);
+        setSources(prev => [newSource, ...prev]);
+        toast.success(`${file.name} uploaded - processing in progress`);
+      } catch (error) {
+        console.error('Error uploading file:', error);
+        toast.error(`Failed to upload ${file.name}`);
+      }
     }
+
+    setUploading(false);
 
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
   };
 
-  const handleDelete = (id: string) => {
-    setSources(sources.filter((s) => s.id !== id));
-    toast.success("Source removed");
+  const handleDelete = async (source: KnowledgeSource) => {
+    try {
+      await knowledgeApi.deleteSource(source.id, source.file_path);
+      setSources(sources.filter((s) => s.id !== source.id));
+      toast.success("Source removed");
+    } catch (error) {
+      console.error('Error deleting source:', error);
+      toast.error("Failed to remove source");
+    }
+  };
+
+  const getStatusIcon = (status: KnowledgeSource["status"]) => {
+    switch (status) {
+      case "completed":
+        return <CheckCircle2 className="h-4 w-4 text-success" />;
+      case "processing":
+        return <Loader2 className="h-4 w-4 text-warning animate-spin" />;
+      case "error":
+        return <AlertCircle className="h-4 w-4 text-destructive" />;
+      default:
+        return <Clock className="h-4 w-4 text-muted-foreground" />;
+    }
   };
 
   const getStatusColor = (status: KnowledgeSource["status"]) => {
     switch (status) {
-      case "indexed":
+      case "completed":
         return "bg-success/10 text-success";
       case "processing":
         return "bg-warning/10 text-warning";
@@ -99,6 +155,15 @@ const KnowledgeSources = () => {
       default:
         return "bg-muted text-muted-foreground";
     }
+  };
+
+  const formatDate = (dateStr: string) => {
+    return new Date(dateStr).toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
   };
 
   return (
@@ -130,13 +195,13 @@ const KnowledgeSources = () => {
                 Add Website URL
               </CardTitle>
               <CardDescription>
-                Enter a website URL to crawl and index its content.
+                Enter a website URL to scrape and index its content.
               </CardDescription>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleAddUrl} className="flex gap-3">
                 <Input
-                  type="url"
+                  type="text"
                   placeholder="https://example.com"
                   value={url}
                   onChange={(e) => setUrl(e.target.value)}
@@ -153,7 +218,7 @@ const KnowledgeSources = () => {
                   ) : (
                     <>
                       <Plus className="h-4 w-4 mr-2" />
-                      Add
+                      Scrape
                     </>
                   )}
                 </Button>
@@ -181,21 +246,30 @@ const KnowledgeSources = () => {
                 multiple
                 onChange={handleFileUpload}
                 className="hidden"
+                disabled={uploading}
               />
               <Button
                 variant="outline"
                 className="w-full h-32 border-dashed hover:border-accent hover:bg-accent/5"
                 onClick={() => fileInputRef.current?.click()}
+                disabled={uploading}
               >
-                <div className="flex flex-col items-center gap-2">
-                  <Upload className="h-8 w-8 text-muted-foreground" />
-                  <span className="text-muted-foreground">
-                    Click to upload or drag and drop
-                  </span>
-                  <span className="text-xs text-muted-foreground">
-                    PDF, TXT, MD (Max 10MB)
-                  </span>
-                </div>
+                {uploading ? (
+                  <div className="flex flex-col items-center gap-2">
+                    <Loader2 className="h-8 w-8 text-accent animate-spin" />
+                    <span className="text-muted-foreground">Uploading...</span>
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center gap-2">
+                    <Upload className="h-8 w-8 text-muted-foreground" />
+                    <span className="text-muted-foreground">
+                      Click to upload or drag and drop
+                    </span>
+                    <span className="text-xs text-muted-foreground">
+                      PDF, TXT, MD (Max 10MB)
+                    </span>
+                  </div>
+                )}
               </Button>
             </CardContent>
           </Card>
@@ -207,13 +281,20 @@ const KnowledgeSources = () => {
         <CardHeader>
           <CardTitle>Your Knowledge Sources</CardTitle>
           <CardDescription>
-            {sources.length === 0
-              ? "No sources added yet"
-              : `${sources.length} source${sources.length !== 1 ? "s" : ""} in your knowledge base`}
+            {fetching
+              ? "Loading sources..."
+              : sources.length === 0
+                ? "No sources added yet"
+                : `${sources.length} source${sources.length !== 1 ? "s" : ""} in your knowledge base`}
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {sources.length === 0 ? (
+          {fetching ? (
+            <div className="text-center py-12">
+              <Loader2 className="h-8 w-8 mx-auto mb-4 animate-spin text-accent" />
+              <p className="text-muted-foreground">Loading your sources...</p>
+            </div>
+          ) : sources.length === 0 ? (
             <div className="text-center py-12 text-muted-foreground">
               <Database className="h-12 w-12 mx-auto mb-4 opacity-50" />
               <p>Add a website URL or upload documents to get started</p>
@@ -226,31 +307,39 @@ const KnowledgeSources = () => {
                   className="flex items-center justify-between p-4 rounded-lg bg-muted/50 border border-border/50"
                 >
                   <div className="flex items-center gap-3 min-w-0 flex-1">
-                    {source.type === "url" ? (
+                    {source.source_type === "url" ? (
                       <Globe className="h-5 w-5 text-accent shrink-0" />
                     ) : (
                       <FileText className="h-5 w-5 text-accent shrink-0" />
                     )}
-                    <div className="min-w-0">
+                    <div className="min-w-0 flex-1">
                       <p className="font-medium truncate">{source.name}</p>
-                      <p className="text-xs text-muted-foreground">
-                        Added {source.createdAt.toLocaleDateString()}
-                      </p>
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                        <span>{formatDate(source.created_at)}</span>
+                        {source.status === 'completed' && source.metadata && (
+                          <span>
+                            • {((source.metadata as { charCount?: number }).charCount || 0).toLocaleString()} chars
+                          </span>
+                        )}
+                        {source.status === 'error' && source.error_message && (
+                          <span className="text-destructive truncate max-w-[200px]">
+                            • {source.error_message}
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
-                    <span
-                      className={`text-xs px-2 py-1 rounded-full capitalize ${getStatusColor(
-                        source.status
-                      )}`}
-                    >
-                      {source.status}
-                    </span>
+                    <div className={`flex items-center gap-1.5 text-xs px-2 py-1 rounded-full ${getStatusColor(source.status)}`}>
+                      {getStatusIcon(source.status)}
+                      <span className="capitalize">{source.status}</span>
+                    </div>
                     <Button
                       variant="ghost"
                       size="icon"
-                      onClick={() => handleDelete(source.id)}
+                      onClick={() => handleDelete(source)}
                       className="text-muted-foreground hover:text-destructive"
+                      disabled={source.status === 'processing'}
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
