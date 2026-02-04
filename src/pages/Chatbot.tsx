@@ -2,10 +2,10 @@ import { useState, useRef, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Brain, Trash2, Loader2 } from "lucide-react";
+import { Brain, Trash2, Loader2, Sparkles } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
-import { ChatMessage } from "@/components/chat/ChatMessage";
+import { ChatMessage, TypingIndicator } from "@/components/chat/ChatMessage";
 import { ChatInput } from "@/components/chat/ChatInput";
 import { EmptyChat } from "@/components/chat/EmptyChat";
 import { chatApi, ChatMessage as ChatMessageType } from "@/lib/api/chat";
@@ -61,11 +61,18 @@ const Chatbot = () => {
     }
   });
 
+  // Auto-scroll with smooth behavior
   useEffect(() => {
     if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+      const scrollElement = scrollRef.current.querySelector('[data-radix-scroll-area-viewport]');
+      if (scrollElement) {
+        scrollElement.scrollTo({
+          top: scrollElement.scrollHeight,
+          behavior: 'smooth'
+        });
+      }
     }
-  }, [messages]);
+  }, [messages, loading]);
 
   const handleSend = async (input: string) => {
     if (!input.trim() || loading) return;
@@ -222,16 +229,25 @@ const Chatbot = () => {
   if (historyLoading) {
     return (
       <div className="h-[calc(100vh-8rem)] flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        <div className="text-center animate-fade-in">
+          <Loader2 className="h-8 w-8 animate-spin text-accent mx-auto mb-3" />
+          <p className="text-sm text-muted-foreground">Loading conversation...</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="h-[calc(100vh-8rem)] flex flex-col animate-fade-in">
+    <div className="h-[calc(100vh-8rem)] flex flex-col page-transition">
       <div className="mb-6 flex items-start justify-between">
         <div>
-          <h1 className="text-3xl font-bold mb-2">AI Chatbot</h1>
+          <div className="flex items-center gap-2 mb-2">
+            <h1 className="text-3xl font-bold">AI Chatbot</h1>
+            <div className="flex h-6 items-center px-2 rounded-full bg-accent/10 border border-accent/20">
+              <Sparkles className="h-3 w-3 text-accent mr-1" />
+              <span className="text-xs font-medium text-accent">AI Powered</span>
+            </div>
+          </div>
           <p className="text-muted-foreground">
             Get instant answers from your knowledge base
           </p>
@@ -242,6 +258,7 @@ const Chatbot = () => {
             size="sm"
             onClick={() => clearMutation.mutate()}
             disabled={clearMutation.isPending}
+            className="hover-lift"
           >
             <Trash2 className="h-4 w-4 mr-2" />
             Clear History
@@ -249,10 +266,10 @@ const Chatbot = () => {
         )}
       </div>
 
-      <Card className="flex-1 flex flex-col border-border/50 shadow-soft overflow-hidden">
-        <CardHeader className="border-b border-border py-4">
+      <Card className="flex-1 flex flex-col border-border/50 shadow-soft overflow-hidden card-premium">
+        <CardHeader className="border-b border-border/50 py-4 bg-gradient-to-r from-muted/30 to-transparent">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl gradient-accent">
+            <div className="flex h-11 w-11 items-center justify-center rounded-xl gradient-accent shadow-sm">
               <Brain className="h-5 w-5 text-accent-foreground" />
             </div>
             <div>
@@ -278,13 +295,16 @@ const Chatbot = () => {
                   isLoading={loading && message.role === "assistant" && !message.content}
                 />
               ))}
+              {loading && messages[messages.length - 1]?.role === "user" && (
+                <TypingIndicator />
+              )}
             </div>
           )}
         </ScrollArea>
 
-        <CardContent className="border-t border-border p-4">
+        <CardContent className="border-t border-border/50 p-4 bg-gradient-to-r from-muted/20 to-transparent">
           <ChatInput onSend={handleSend} loading={loading} />
-          <p className="text-xs text-muted-foreground mt-3 text-center">
+          <p className="text-[11px] text-muted-foreground mt-3 text-center">
             💡 Responses are generated exclusively from your knowledge sources
           </p>
         </CardContent>
