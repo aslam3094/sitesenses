@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Brain, Upload, Globe, MessageSquare, Shield, Zap, ArrowRight, Check, Bot, Users, BarChart3 } from "lucide-react";
+import { Brain, Upload, Globe, MessageSquare, Shield, Zap, ArrowRight, Check, Bot, Users, BarChart3, Sparkles } from "lucide-react";
 
 const Landing = () => {
   const features = [
@@ -27,10 +27,10 @@ const Landing = () => {
   ];
 
   const benefits = [
-    "Answers based only on your content",
-    "No AI hallucinations or made-up facts",
-    "Instant setup in minutes",
-    "Works with any website or document",
+    "Instant answers from your content",
+    "No AI hallucinations",
+    "Setup in minutes",
+    "Works with any website",
   ];
 
   const stats = [
@@ -43,67 +43,81 @@ const Landing = () => {
   return (
     <div className="flex flex-col">
       {/* Hero Section */}
-      <section className="relative overflow-hidden section-padding">
-        {/* Background - subtle, refined */}
-        <div className="absolute inset-0 bg-gradient-to-b from-accent/[0.03] via-transparent to-transparent" />
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[600px] bg-accent/[0.04] rounded-full blur-[120px]" />
+      <section className="relative overflow-hidden pt-20 pb-24 md:pt-28 md:pb-32 lg:pt-32 lg:pb-40">
+        {/* Subtle background gradient */}
+        <div className="absolute inset-0 bg-gradient-to-br from-accent/[0.02] via-transparent to-transparent pointer-events-none" />
         
         <div className="container relative">
-          <div className="mx-auto max-w-3xl text-center">
-            {/* Badge - subtle, refined */}
-            <div className="inline-flex items-center gap-2 rounded-full border border-accent/20 bg-accent/[0.06] px-4 py-1.5 text-sm font-medium text-accent-foreground/80 mb-10 animate-fade-in">
-              <Zap className="h-3.5 w-3.5 text-accent" />
-              <span>AI-Powered Knowledge Base</span>
+          <div className="mx-auto max-w-4xl text-center">
+            {/* Badge */}
+            <div 
+              className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-4 py-2 text-sm font-medium text-foreground mb-8 animate-fade-in shadow-soft"
+            >
+              <Sparkles className="h-4 w-4 text-accent" />
+              <span>AI-Powered Customer Support</span>
             </div>
             
-            <h1 className="mb-6 animate-fade-in-up">
-              Turn your content into an{" "}
-              <span className="text-gradient">intelligent chatbot</span>
+            {/* Main Heading */}
+            <h1 className="mb-6 animate-fade-in-up text-balance">
+              Turn your knowledge into an{" "}
+              <span className="text-gradient">intelligent AI agent</span>
             </h1>
             
-            <p className="text-lg md:text-xl text-muted-foreground mb-12 max-w-2xl mx-auto animate-fade-in-up stagger-1 leading-relaxed">
-              Create a custom AI assistant that answers questions based only on your
-              website and documents. No hallucinations, just accurate answers.
+            {/* Description */}
+            <p className="text-lg md:text-xl text-muted-foreground mb-10 max-w-3xl mx-auto animate-fade-in-up stagger-1 leading-relaxed text-balance">
+              KnowledgeBot turns your documentation and knowledge sources into an intelligent AI agent that intercepts and resolves customer queries automatically. Only the complex issues that truly require human touch reach your support team.
+            </p>
+
+            {/* Secondary Description */}
+            <p className="text-base text-muted-foreground mb-12 max-w-2xl mx-auto animate-fade-in-up stagger-2 leading-relaxed">
+              It's like having ChatGPT specifically for your products. Instantly answer your visitors' questions with a personalized chatbot trained on your website content.
             </p>
             
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in-up stagger-2">
+            {/* CTA Buttons */}
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in-up stagger-3">
               <Link to="/auth?mode=signup">
-                <Button size="xl" variant="accent">
+                <Button size="xl" variant="accent" className="min-w-[180px]">
                   Get Started Free
-                  <ArrowRight className="ml-1 h-4 w-4" />
+                  <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               </Link>
               <Link to="/pricing">
-                <Button size="xl" variant="outline">
+                <Button size="xl" variant="outline" className="min-w-[180px]">
                   View Pricing
                 </Button>
               </Link>
             </div>
           </div>
 
-          {/* Floating decorations - subtle */}
-          <div className="hidden lg:block absolute top-24 left-16 animate-float">
-            <div className="w-12 h-12 rounded-xl bg-accent/[0.08] border border-accent/10 flex items-center justify-center">
-              <Bot className="h-5 w-5 text-accent" />
+          {/* Floating decorations */}
+          <div className="hidden lg:block absolute top-32 left-[10%] animate-fade-in stagger-4">
+            <div 
+              className="w-14 h-14 rounded-2xl bg-accent/10 border border-accent/20 flex items-center justify-center shadow-soft"
+              style={{ animation: 'float 6s ease-in-out infinite' }}
+            >
+              <Bot className="h-6 w-6 text-accent" />
             </div>
           </div>
-          <div className="hidden lg:block absolute top-48 right-20 animate-float" style={{ animationDelay: '2s' }}>
-            <div className="w-10 h-10 rounded-lg bg-success/[0.08] border border-success/10 flex items-center justify-center">
-              <Check className="h-4 w-4 text-success" />
+          <div className="hidden lg:block absolute top-48 right-[10%] animate-fade-in stagger-5">
+            <div 
+              className="w-12 h-12 rounded-xl bg-success/10 border border-success/20 flex items-center justify-center shadow-soft"
+              style={{ animation: 'float 6s ease-in-out infinite 1s' }}
+            >
+              <Check className="h-5 w-5 text-success" />
             </div>
           </div>
         </div>
       </section>
 
       {/* Stats Section */}
-      <section className="py-16 border-y border-border/60 bg-muted/30">
+      <section className="py-16 md:py-20 border-y border-border bg-muted/30">
         <div className="container">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-12 md:gap-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12">
             {stats.map((stat, i) => (
               <div 
                 key={i} 
                 className="text-center animate-fade-in-up"
-                style={{ animationDelay: `${i * 0.08}s` }}
+                style={{ animationDelay: `${i * 0.1}s` }}
               >
                 <div className="text-3xl md:text-4xl font-bold text-foreground mb-1">{stat.value}</div>
                 <div className="text-sm text-muted-foreground">{stat.label}</div>
@@ -114,16 +128,16 @@ const Landing = () => {
       </section>
 
       {/* Benefits Section */}
-      <section className="section-padding-sm bg-gradient-to-b from-muted/20 to-transparent">
+      <section className="section-padding-sm">
         <div className="container">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {benefits.map((benefit, i) => (
               <div 
                 key={i} 
-                className="flex items-center gap-3 p-5 rounded-xl bg-card border border-border/60 shadow-card animate-fade-in-up hover-lift"
-                style={{ animationDelay: `${i * 0.08}s` }}
+                className="flex items-center gap-3 p-5 rounded-xl bg-card border border-border shadow-card animate-fade-in-up hover-lift"
+                style={{ animationDelay: `${i * 0.1}s` }}
               >
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-success/10">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-success/10">
                   <Check className="h-4 w-4 text-success" />
                 </div>
                 <span className="text-sm font-medium text-foreground">{benefit}</span>
@@ -137,24 +151,24 @@ const Landing = () => {
       <section id="features" className="section-padding">
         <div className="container">
           <div className="text-center mb-16 md:mb-20 animate-fade-in">
-            <div className="inline-flex items-center gap-2 rounded-full bg-accent/[0.06] border border-accent/10 px-3 py-1 text-xs font-medium text-accent-foreground/80 mb-6">
-              <Zap className="h-3 w-3 text-accent" />
+            <div className="inline-flex items-center gap-2 rounded-full bg-accent/10 border border-accent/20 px-4 py-1.5 text-sm font-medium text-foreground mb-6">
+              <Zap className="h-4 w-4 text-accent" />
               Simple Setup
             </div>
-            <h2 className="mb-5">How it works</h2>
+            <h2 className="mb-5 text-balance">How it works</h2>
             <p className="text-muted-foreground max-w-xl mx-auto text-lg">
               Get your AI chatbot up and running in minutes with our simple process.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-5 lg:gap-6">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {features.map((feature, i) => (
               <div 
                 key={i} 
-                className="group p-6 rounded-2xl bg-card border border-border/60 shadow-card animate-fade-in-up transition-all duration-300 hover:shadow-lg hover:border-border hover:-translate-y-1"
-                style={{ animationDelay: `${i * 0.08}s` }}
+                className="group p-6 rounded-2xl bg-card border border-border shadow-card animate-fade-in-up transition-all duration-300 hover:shadow-lg hover:border-accent/20 hover:-translate-y-1"
+                style={{ animationDelay: `${i * 0.1}s` }}
               >
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-accent/[0.08] border border-accent/10 mb-5 group-hover:bg-accent/[0.12] transition-colors">
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-accent/10 border border-accent/20 mb-5 group-hover:bg-accent/15 transition-colors">
                   <feature.icon className="h-5 w-5 text-accent" />
                 </div>
                 <h3 className="text-lg font-semibold mb-2">{feature.title}</h3>
@@ -169,13 +183,13 @@ const Landing = () => {
       <section className="section-padding bg-muted/30">
         <div className="container">
           <div className="text-center mb-16 md:mb-20">
-            <h2 className="mb-5">Perfect for every team</h2>
+            <h2 className="mb-5 text-balance">Perfect for every team</h2>
             <p className="text-muted-foreground max-w-xl mx-auto text-lg">
               From startups to enterprises, KnowledgeBot helps teams provide instant answers.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+          <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
             {[
               { icon: Users, title: "Customer Support", desc: "Deflect common questions and reduce ticket volume by up to 70%." },
               { icon: BarChart3, title: "Sales Teams", desc: "Give prospects instant answers about your product and pricing." },
@@ -183,8 +197,8 @@ const Landing = () => {
             ].map((item, i) => (
               <div 
                 key={i}
-                className="p-8 rounded-2xl bg-card border border-border/60 shadow-card hover-lift animate-fade-in-up"
-                style={{ animationDelay: `${i * 0.08}s` }}
+                className="p-8 rounded-2xl bg-card border border-border shadow-card hover-lift animate-fade-in-up"
+                style={{ animationDelay: `${i * 0.1}s` }}
               >
                 <div className="flex h-12 w-12 items-center justify-center rounded-xl gradient-accent mb-6">
                   <item.icon className="h-5 w-5 text-accent-foreground" />
@@ -199,7 +213,7 @@ const Landing = () => {
 
       {/* CTA Section */}
       <section className="section-padding bg-primary text-primary-foreground relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(255,255,255,0.04),transparent_50%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(255,255,255,0.03),transparent_50%)]" />
         <div className="container relative">
           <div className="mx-auto max-w-2xl text-center">
             <div className="flex h-16 w-16 items-center justify-center rounded-2xl gradient-accent mx-auto mb-8 shadow-glow">
@@ -214,13 +228,13 @@ const Landing = () => {
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Link to="/auth?mode=signup">
-                <Button size="xl" variant="accent">
+                <Button size="xl" variant="accent" className="min-w-[180px]">
                   Start for Free
-                  <ArrowRight className="ml-1 h-4 w-4" />
+                  <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               </Link>
               <Link to="/pricing">
-                <Button size="xl" variant="outline" className="border-primary-foreground/20 text-primary-foreground hover:bg-primary-foreground/10 hover:border-primary-foreground/30">
+                <Button size="xl" variant="outline" className="min-w-[180px] border-primary-foreground/20 text-primary-foreground hover:bg-primary-foreground/10 hover:border-primary-foreground/30">
                   View Pricing
                 </Button>
               </Link>
