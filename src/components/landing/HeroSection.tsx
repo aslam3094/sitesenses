@@ -195,7 +195,7 @@ export function HeroSection() {
                 <Button
                   size="lg"
                   variant="outline"
-                  className="min-w-[200px] h-12 text-base font-semibold border-background/30 text-background hover:bg-background/10 hover:border-background/50 rounded-full"
+                  className="min-w-[200px] h-12 text-base font-semibold border-background/40 text-background bg-background/10 hover:bg-background/20 hover:border-background/60 rounded-full"
                 >
                   VIEW PRICING
                 </Button>
@@ -216,12 +216,9 @@ export function HeroSection() {
               transition: { delay: 1.2, duration: 0.8 },
             },
           }}
-          className="pb-20 lg:pb-32"
+          className="pb-16 lg:pb-24"
         >
-          <h3 className="text-center text-sm font-semibold text-accent uppercase tracking-wider mb-10">
-            Unlock the Power of AI
-          </h3>
-          <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+          <div className="grid md:grid-cols-3 gap-5 max-w-5xl mx-auto">
             {features.map((feature, index) => (
               <motion.div
                 key={index}
