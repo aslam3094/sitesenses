@@ -6,136 +6,119 @@
 
 /* KnowledgeBot Premium Design System
    Inspired by Linear, Notion, Vercel
-   Muted amber/gold accents with exceptional polish
+   Clean whites with muted amber accents
 */
 
 @layer base {
   :root {
-    /* Background - Clean warm white */
-    --background: 48 20% 99%;
-    --foreground: 24 10% 10%;
+    /* Background - Clean white */
+    --background: 0 0% 100%;
+    --foreground: 222 47% 11%;
 
-    /* Card surfaces - Pure white with subtle depth */
+    /* Card surfaces - Pure white */
     --card: 0 0% 100%;
-    --card-foreground: 24 10% 10%;
+    --card-foreground: 222 47% 11%;
 
     /* Popover/dropdown surfaces */
     --popover: 0 0% 100%;
-    --popover-foreground: 24 10% 10%;
+    --popover-foreground: 222 47% 11%;
 
-    /* Primary - Deep warm charcoal */
-    --primary: 24 10% 12%;
-    --primary-foreground: 48 30% 98%;
+    /* Primary - Deep charcoal */
+    --primary: 222 47% 11%;
+    --primary-foreground: 0 0% 100%;
 
-    /* Secondary - Subtle warm gray */
-    --secondary: 45 10% 96%;
-    --secondary-foreground: 24 10% 25%;
+    /* Secondary - Light gray */
+    --secondary: 220 14% 96%;
+    --secondary-foreground: 222 47% 11%;
 
-    /* Muted - Very subtle warm tint */
-    --muted: 45 8% 95%;
-    --muted-foreground: 24 6% 45%;
+    /* Muted - Subtle gray */
+    --muted: 220 14% 96%;
+    --muted-foreground: 220 9% 46%;
 
     /* Accent - Refined muted amber/gold */
-    --accent: 36 72% 52%;
-    --accent-foreground: 24 10% 8%;
+    --accent: 38 92% 50%;
+    --accent-foreground: 0 0% 100%;
 
-    /* Accent gradient endpoints - Soft, not neon */
-    --accent-light: 42 65% 58%;
-    --accent-dark: 30 70% 46%;
+    /* Accent gradient endpoints - Soft, warm tones */
+    --accent-light: 43 96% 56%;
+    --accent-dark: 32 95% 44%;
 
     /* Destructive */
-    --destructive: 0 65% 51%;
+    --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
     /* Success - Muted green */
-    --success: 152 60% 42%;
+    --success: 142 71% 45%;
     --success-foreground: 0 0% 100%;
 
     /* Warning - Muted amber */
-    --warning: 36 72% 52%;
-    --warning-foreground: 24 10% 8%;
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
 
-    /* Border and input - Subtle, barely there */
-    --border: 45 10% 91%;
-    --input: 45 10% 91%;
-    --ring: 36 65% 50%;
+    /* Border and input */
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 38 92% 50%;
 
     --radius: 0.625rem;
 
-    /* Sidebar - Clean, minimal */
-    --sidebar-background: 48 15% 98%;
-    --sidebar-foreground: 24 10% 20%;
-    --sidebar-primary: 36 72% 52%;
-    --sidebar-primary-foreground: 24 10% 8%;
-    --sidebar-accent: 45 15% 95%;
-    --sidebar-accent-foreground: 24 10% 15%;
-    --sidebar-border: 45 10% 93%;
-    --sidebar-ring: 36 65% 50%;
-
-    /* Premium Shadows - Refined, subtle */
-    --shadow-xs: 0 1px 2px 0 hsl(30 10% 20% / 0.03);
-    --shadow-sm: 0 1px 3px 0 hsl(30 10% 20% / 0.04), 0 1px 2px -1px hsl(30 10% 20% / 0.03);
-    --shadow-md: 0 4px 6px -1px hsl(30 10% 20% / 0.05), 0 2px 4px -2px hsl(30 10% 20% / 0.03);
-    --shadow-lg: 0 10px 15px -3px hsl(30 10% 20% / 0.06), 0 4px 6px -4px hsl(30 10% 20% / 0.04);
-    --shadow-xl: 0 20px 25px -5px hsl(30 10% 20% / 0.08), 0 8px 10px -6px hsl(30 10% 20% / 0.04);
-    --shadow-glow: 0 0 24px -4px hsl(36 72% 52% / 0.15);
-    --shadow-card: 0 0 0 1px hsl(45 10% 91% / 0.8), 0 2px 4px hsl(30 10% 20% / 0.03);
+    /* Sidebar */
+    --sidebar-background: 0 0% 99%;
+    --sidebar-foreground: 222 47% 11%;
+    --sidebar-primary: 38 92% 50%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 220 14% 96%;
+    --sidebar-accent-foreground: 222 47% 11%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 38 92% 50%;
   }
 
   .dark {
-    --background: 24 10% 6%;
-    --foreground: 45 15% 95%;
+    --background: 222 47% 5%;
+    --foreground: 210 40% 98%;
 
-    --card: 24 10% 8%;
-    --card-foreground: 45 15% 95%;
+    --card: 222 47% 7%;
+    --card-foreground: 210 40% 98%;
 
-    --popover: 24 10% 8%;
-    --popover-foreground: 45 15% 95%;
+    --popover: 222 47% 7%;
+    --popover-foreground: 210 40% 98%;
 
-    --primary: 45 15% 95%;
-    --primary-foreground: 24 10% 8%;
+    --primary: 210 40% 98%;
+    --primary-foreground: 222 47% 11%;
 
-    --secondary: 24 8% 12%;
-    --secondary-foreground: 45 15% 90%;
+    --secondary: 217 33% 12%;
+    --secondary-foreground: 210 40% 98%;
 
-    --muted: 24 8% 12%;
-    --muted-foreground: 45 8% 55%;
+    --muted: 217 33% 12%;
+    --muted-foreground: 215 20% 55%;
 
-    --accent: 36 68% 50%;
-    --accent-foreground: 24 10% 8%;
+    --accent: 38 92% 50%;
+    --accent-foreground: 222 47% 11%;
 
-    --accent-light: 42 60% 55%;
-    --accent-dark: 30 65% 42%;
+    --accent-light: 43 96% 56%;
+    --accent-dark: 32 95% 44%;
 
-    --destructive: 0 55% 45%;
-    --destructive-foreground: 45 15% 95%;
+    --destructive: 0 63% 31%;
+    --destructive-foreground: 210 40% 98%;
 
-    --success: 152 55% 40%;
+    --success: 142 71% 45%;
     --success-foreground: 0 0% 100%;
 
-    --warning: 36 68% 50%;
-    --warning-foreground: 24 10% 8%;
+    --warning: 38 92% 50%;
+    --warning-foreground: 222 47% 11%;
 
-    --border: 24 8% 14%;
-    --input: 24 8% 14%;
-    --ring: 36 65% 50%;
+    --border: 217 33% 15%;
+    --input: 217 33% 15%;
+    --ring: 38 92% 50%;
 
-    --sidebar-background: 24 10% 7%;
-    --sidebar-foreground: 45 15% 95%;
-    --sidebar-primary: 36 68% 50%;
-    --sidebar-primary-foreground: 24 10% 8%;
-    --sidebar-accent: 24 8% 12%;
-    --sidebar-accent-foreground: 45 15% 90%;
-    --sidebar-border: 24 8% 12%;
-    --sidebar-ring: 36 65% 50%;
-
-    --shadow-xs: 0 1px 2px 0 hsl(0 0% 0% / 0.12);
-    --shadow-sm: 0 1px 3px 0 hsl(0 0% 0% / 0.16), 0 1px 2px -1px hsl(0 0% 0% / 0.12);
-    --shadow-md: 0 4px 6px -1px hsl(0 0% 0% / 0.2), 0 2px 4px -2px hsl(0 0% 0% / 0.16);
-    --shadow-lg: 0 10px 15px -3px hsl(0 0% 0% / 0.24), 0 4px 6px -4px hsl(0 0% 0% / 0.2);
-    --shadow-xl: 0 20px 25px -5px hsl(0 0% 0% / 0.28), 0 8px 10px -6px hsl(0 0% 0% / 0.24);
-    --shadow-glow: 0 0 24px -4px hsl(36 68% 50% / 0.2);
-    --shadow-card: 0 0 0 1px hsl(24 8% 14% / 0.8), 0 2px 4px hsl(0 0% 0% / 0.12);
+    --sidebar-background: 222 47% 6%;
+    --sidebar-foreground: 210 40% 98%;
+    --sidebar-primary: 38 92% 50%;
+    --sidebar-primary-foreground: 222 47% 11%;
+    --sidebar-accent: 217 33% 12%;
+    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-border: 217 33% 15%;
+    --sidebar-ring: 38 92% 50%;
   }
 }
 
@@ -183,7 +166,7 @@
     line-height: 1.65;
   }
 
-  /* Smooth focus transitions - Linear style */
+  /* Smooth focus transitions */
   *:focus-visible {
     @apply outline-none ring-2 ring-ring/40 ring-offset-2 ring-offset-background;
     transition: box-shadow 0.15s ease;
@@ -194,12 +177,11 @@
   /* Premium Button Styles */
   .btn-primary {
     @apply relative overflow-hidden;
-    background: linear-gradient(135deg, hsl(var(--accent)) 0%, hsl(var(--accent-dark)) 100%);
+    background: linear-gradient(135deg, hsl(var(--accent-light)) 0%, hsl(var(--accent-dark)) 100%);
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .btn-primary:hover {
-    box-shadow: var(--shadow-glow), var(--shadow-md);
     transform: translateY(-1px);
   }
 
@@ -209,26 +191,18 @@
 
   /* Premium card with subtle effect */
   .card-premium {
-    @apply bg-card border border-border/60 transition-all duration-300;
-    box-shadow: var(--shadow-card);
+    @apply bg-card border border-border transition-all duration-300;
   }
 
   .card-premium:hover {
-    box-shadow: var(--shadow-lg);
+    @apply shadow-lg;
     transform: translateY(-2px);
-    border-color: hsl(var(--border) / 0.8);
-  }
-
-  /* Floating card - for elevated elements */
-  .card-floating {
-    @apply bg-card border border-border/40;
-    box-shadow: var(--shadow-lg);
   }
 
   /* Gradient text - muted, professional */
   .text-gradient {
     @apply bg-clip-text text-transparent;
-    background: linear-gradient(135deg, hsl(var(--accent-light)) 0%, hsl(var(--accent)) 50%, hsl(var(--accent-dark)) 100%);
+    background: linear-gradient(135deg, hsl(var(--accent)) 0%, hsl(var(--accent-dark)) 100%);
   }
 
   /* Chat bubble styles */
@@ -252,11 +226,11 @@
 
   /* Section padding - consistent spacing */
   .section-padding {
-    @apply py-24 md:py-32 lg:py-40;
+    @apply py-20 md:py-28 lg:py-32;
   }
 
   .section-padding-sm {
-    @apply py-16 md:py-20 lg:py-24;
+    @apply py-14 md:py-18 lg:py-20;
   }
 }
 
@@ -271,69 +245,75 @@
   }
 
   .gradient-accent-subtle {
-    background: linear-gradient(135deg, hsl(var(--accent) / 0.08) 0%, hsl(var(--accent) / 0.04) 100%);
-  }
-
-  .gradient-surface {
-    background: linear-gradient(180deg, hsl(var(--background)) 0%, hsl(var(--muted) / 0.5) 100%);
+    @apply bg-accent/5;
   }
 
   /* Shadow utilities */
-  .shadow-xs { box-shadow: var(--shadow-xs); }
-  .shadow-soft { box-shadow: var(--shadow-sm); }
-  .shadow-elevated { box-shadow: var(--shadow-lg); }
-  .shadow-glow { box-shadow: var(--shadow-glow); }
-  .shadow-card { box-shadow: var(--shadow-card); }
+  .shadow-soft {
+    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.05), 0 1px 2px -1px rgb(0 0 0 / 0.05);
+  }
 
-  /* Hover utilities - refined, subtle */
+  .shadow-elevated {
+    box-shadow: 0 10px 25px -5px rgb(0 0 0 / 0.08), 0 4px 10px -6px rgb(0 0 0 / 0.05);
+  }
+
+  .shadow-glow {
+    box-shadow: 0 0 20px -4px hsl(var(--accent) / 0.25);
+  }
+
+  .shadow-card {
+    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.04), 0 1px 2px -1px rgb(0 0 0 / 0.04);
+  }
+
+  /* Hover utilities */
   .hover-lift {
     @apply transition-all duration-300 ease-out;
   }
 
   .hover-lift:hover {
     transform: translateY(-2px);
-    box-shadow: var(--shadow-lg);
+    @apply shadow-lg;
   }
 
   .hover-glow:hover {
-    box-shadow: var(--shadow-glow);
+    box-shadow: 0 0 20px -4px hsl(var(--accent) / 0.3);
   }
 
   /* Page transition wrapper */
   .page-transition {
-    animation: pageEnter 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    animation: pageEnter 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
   }
 
   /* Animation utilities */
   .animate-fade-in {
-    animation: fadeIn 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    animation: fadeIn 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
   }
 
   .animate-fade-in-up {
-    animation: fadeInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    animation: fadeInUp 0.7s cubic-bezier(0.4, 0, 0.2, 1) forwards;
     opacity: 0;
   }
 
   .animate-slide-up {
-    animation: slideUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    animation: slideUp 0.7s cubic-bezier(0.4, 0, 0.2, 1) forwards;
     opacity: 0;
   }
 
   .animate-scale-in {
-    animation: scaleIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    animation: scaleIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
     opacity: 0;
   }
 
-  /* Stagger animation delays - more refined timing */
-  .stagger-1 { animation-delay: 0.08s; }
-  .stagger-2 { animation-delay: 0.16s; }
-  .stagger-3 { animation-delay: 0.24s; }
-  .stagger-4 { animation-delay: 0.32s; }
-  .stagger-5 { animation-delay: 0.4s; }
-  .stagger-6 { animation-delay: 0.48s; }
+  /* Stagger animation delays */
+  .stagger-1 { animation-delay: 0.1s; }
+  .stagger-2 { animation-delay: 0.2s; }
+  .stagger-3 { animation-delay: 0.3s; }
+  .stagger-4 { animation-delay: 0.4s; }
+  .stagger-5 { animation-delay: 0.5s; }
+  .stagger-6 { animation-delay: 0.6s; }
 }
 
-/* Keyframes - smoother, more refined */
+/* Keyframes - smooth, refined */
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
@@ -342,7 +322,7 @@
 @keyframes fadeInUp {
   from {
     opacity: 0;
-    transform: translateY(16px);
+    transform: translateY(20px);
   }
   to {
     opacity: 1;
@@ -353,7 +333,7 @@
 @keyframes slideUp {
   from {
     opacity: 0;
-    transform: translateY(24px);
+    transform: translateY(30px);
   }
   to {
     opacity: 1;
@@ -364,7 +344,7 @@
 @keyframes scaleIn {
   from {
     opacity: 0;
-    transform: scale(0.96);
+    transform: scale(0.95);
   }
   to {
     opacity: 1;
@@ -386,7 +366,7 @@
 @keyframes pageEnter {
   from {
     opacity: 0;
-    transform: translateY(8px);
+    transform: translateY(10px);
   }
   to {
     opacity: 1;
@@ -394,23 +374,12 @@
   }
 }
 
-@keyframes bubbleIn {
-  from {
-    opacity: 0;
-    transform: scale(0.95) translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1) translateY(0);
-  }
-}
-
 @keyframes float {
   0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-8px); }
+  50% { transform: translateY(-10px); }
 }
 
-/* Scrollbar styling - subtle, refined */
+/* Scrollbar styling - minimal */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
@@ -432,5 +401,5 @@
 /* Selection styling */
 ::selection {
   background: hsl(var(--accent) / 0.15);
-  color: hsl(var(--foreground));
+  color: inherit;
 }
