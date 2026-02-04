@@ -1,8 +1,7 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Brain, Upload, Globe, MessageSquare, Shield, Zap, ArrowRight, Check, Bot, Users, BarChart3, Sparkles } from "lucide-react";
-import { ContainerScroll } from "@/components/ui/container-scroll-animation";
-import { BlurFade } from "@/components/ui/blur-fade";
+import { Brain, Upload, Globe, MessageSquare, Shield, Zap, ArrowRight, Check, Users, BarChart3 } from "lucide-react";
+import { HeroSection } from "@/components/landing/HeroSection";
 
 const Landing = () => {
   const features = [
@@ -44,138 +43,8 @@ const Landing = () => {
 
   return (
     <div className="flex flex-col">
-      {/* Hero Section with Container Scroll */}
-      <ContainerScroll
-        titleComponent={
-          <div className="flex flex-col items-center">
-            {/* Badge */}
-            <BlurFade delay={0}>
-              <div 
-                className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-4 py-2 text-sm font-medium text-foreground mb-8 shadow-soft"
-              >
-                <Sparkles className="h-4 w-4 text-accent" />
-                <span>AI-Powered Customer Support</span>
-              </div>
-            </BlurFade>
-            
-            {/* Main Heading */}
-            <BlurFade delay={0.1}>
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 text-balance leading-tight text-center">
-                Turn your website into an{" "}
-                <span className="text-gradient">intelligent AI agent</span>
-              </h1>
-            </BlurFade>
-            
-            {/* Description */}
-            <BlurFade delay={0.2}>
-              <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-3xl mx-auto leading-relaxed text-balance text-center">
-                SiteSense turns your documentation and knowledge sources into an intelligent AI agent that intercepts and resolves customer queries automatically. Only the complex issues that truly require human touch reach your support team.
-              </p>
-            </BlurFade>
-
-            {/* Secondary Description */}
-            <BlurFade delay={0.3}>
-              <p className="text-base text-muted-foreground mb-10 max-w-2xl mx-auto leading-relaxed text-center">
-                It's like having ChatGPT specifically for your products. Instantly answer your visitors' questions with a personalized chatbot trained on your website content.
-              </p>
-            </BlurFade>
-            
-            {/* CTA Buttons */}
-            <BlurFade delay={0.4}>
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                <Link to="/auth?mode=signup">
-                  <Button size="xl" variant="accent" className="min-w-[180px]">
-                    Get Started Free
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Button>
-                </Link>
-                <Link to="/pricing">
-                  <Button size="xl" variant="outline" className="min-w-[180px]">
-                    View Pricing
-                  </Button>
-                </Link>
-              </div>
-            </BlurFade>
-          </div>
-        }
-      >
-        {/* Dashboard Preview inside scroll container */}
-        <div className="h-full w-full flex items-center justify-center bg-gradient-to-br from-accent/5 via-background to-muted/30 rounded-2xl p-8">
-          <div className="w-full max-w-4xl">
-            {/* Mock Chat Interface */}
-            <div className="bg-card border border-border rounded-2xl shadow-card overflow-hidden">
-              {/* Chat Header */}
-              <div className="px-6 py-4 border-b border-border bg-muted/30 flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl gradient-accent">
-                  <Bot className="h-5 w-5 text-accent-foreground" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-sm">SiteSense AI</h3>
-                  <p className="text-xs text-muted-foreground">Trained on your knowledge base</p>
-                </div>
-                <div className="ml-auto flex items-center gap-1.5">
-                  <span className="h-2 w-2 rounded-full bg-success animate-pulse" />
-                  <span className="text-xs text-muted-foreground">Online</span>
-                </div>
-              </div>
-              
-              {/* Chat Messages */}
-              <div className="p-6 space-y-4 min-h-[280px]">
-                <div className="flex gap-3">
-                  <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center shrink-0">
-                    <Users className="h-4 w-4 text-muted-foreground" />
-                  </div>
-                  <div className="bg-muted rounded-2xl rounded-tl-md px-4 py-3 max-w-[80%]">
-                    <p className="text-sm">How do I integrate the chatbot with my website?</p>
-                  </div>
-                </div>
-                
-                <div className="flex gap-3 justify-end">
-                  <div className="bg-accent text-accent-foreground rounded-2xl rounded-tr-md px-4 py-3 max-w-[80%]">
-                    <p className="text-sm">Great question! You can integrate SiteSense with just a single line of code. Simply copy the embed script from your dashboard and paste it before the closing &lt;/body&gt; tag on your website. The chatbot will automatically appear as a floating widget.</p>
-                  </div>
-                  <div className="h-8 w-8 rounded-full gradient-accent flex items-center justify-center shrink-0">
-                    <Bot className="h-4 w-4 text-accent-foreground" />
-                  </div>
-                </div>
-                
-                <div className="flex gap-3">
-                  <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center shrink-0">
-                    <Users className="h-4 w-4 text-muted-foreground" />
-                  </div>
-                  <div className="bg-muted rounded-2xl rounded-tl-md px-4 py-3 max-w-[80%]">
-                    <p className="text-sm">Can I customize the appearance?</p>
-                  </div>
-                </div>
-                
-                <div className="flex gap-3 justify-end">
-                  <div className="bg-accent text-accent-foreground rounded-2xl rounded-tr-md px-4 py-3 max-w-[80%]">
-                    <p className="text-sm">Absolutely! You can customize colors, position, welcome messages, and more from the Settings page. Match it perfectly with your brand. ✨</p>
-                  </div>
-                  <div className="h-8 w-8 rounded-full gradient-accent flex items-center justify-center shrink-0">
-                    <Bot className="h-4 w-4 text-accent-foreground" />
-                  </div>
-                </div>
-              </div>
-              
-              {/* Chat Input */}
-              <div className="px-6 py-4 border-t border-border bg-muted/20">
-                <div className="flex items-center gap-3">
-                  <input 
-                    type="text" 
-                    placeholder="Ask anything about your product..." 
-                    className="flex-1 bg-background border border-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-accent/20"
-                    disabled
-                  />
-                  <Button size="sm" variant="accent" className="px-4">
-                    Send
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </ContainerScroll>
+      {/* Hero Section */}
+      <HeroSection />
 
       {/* Stats Section */}
       <section className="py-16 md:py-20 border-y border-border bg-muted/30">
