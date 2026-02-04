@@ -14,6 +14,50 @@ export type Database = {
   }
   public: {
     Tables: {
+      embeddings: {
+        Row: {
+          chunk_index: number
+          chunk_text: string
+          created_at: string
+          embedding: string
+          id: string
+          metadata: Json | null
+          source_id: string
+          token_count: number
+          user_id: string
+        }
+        Insert: {
+          chunk_index: number
+          chunk_text: string
+          created_at?: string
+          embedding: string
+          id?: string
+          metadata?: Json | null
+          source_id: string
+          token_count: number
+          user_id: string
+        }
+        Update: {
+          chunk_index?: number
+          chunk_text?: string
+          created_at?: string
+          embedding?: string
+          id?: string
+          metadata?: Json | null
+          source_id?: string
+          token_count?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "embeddings_source_id_fkey"
+            columns: ["source_id"]
+            isOneToOne: false
+            referencedRelation: "knowledge_sources"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       knowledge_sources: {
         Row: {
           created_at: string
@@ -67,7 +111,20 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      match_embeddings: {
+        Args: {
+          match_count?: number
+          match_threshold?: number
+          p_user_id?: string
+          query_embedding: string
+        }
+        Returns: {
+          chunk_text: string
+          id: string
+          similarity: number
+          source_id: string
+        }[]
+      }
     }
     Enums: {
       ingestion_status: "pending" | "processing" | "completed" | "error"

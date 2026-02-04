@@ -6,6 +6,29 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
 };
 
+// Generate embedding for query using OpenAI
+async function generateQueryEmbedding(text: string, apiKey: string): Promise<number[]> {
+  const response = await fetch('https://api.openai.com/v1/embeddings', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${apiKey}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      model: 'text-embedding-3-small',
+      input: text,
+    }),
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(`OpenAI API error: ${error.error?.message || response.statusText}`);
+  }
+
+  const data = await response.json();
+  return data.data[0].embedding;
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });
@@ -29,6 +52,8 @@ serve(async (req) => {
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
+
+    const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
 
     // Get authorization header to identify user
     const authHeader = req.headers.get('Authorization');
@@ -55,25 +80,62 @@ serve(async (req) => {
       );
     }
 
-    // Fetch user's knowledge sources
-    const { data: sources, error: sourcesError } = await supabase
-      .from('knowledge_sources')
-      .select('name, extracted_text, source_type')
-      .eq('user_id', user.id)
-      .eq('status', 'completed')
-      .not('extracted_text', 'is', null);
+    // Get the latest user message for semantic search
+    const latestMessage = messages[messages.length - 1];
+    const query = latestMessage?.content || '';
 
-    if (sourcesError) {
-      console.error('Error fetching knowledge sources:', sourcesError);
+    console.log('Processing chat for user:', user.id, 'query:', query.substring(0, 100));
+
+    let knowledgeContext = '';
+    let useSemanticSearch = false;
+
+    // Try semantic search if OpenAI key is available
+    if (OPENAI_API_KEY && query) {
+      try {
+        // Generate embedding for the query
+        const queryEmbedding = await generateQueryEmbedding(query, OPENAI_API_KEY);
+        
+        // Search for relevant chunks using vector similarity
+        const { data: matches, error: matchError } = await supabase.rpc('match_embeddings', {
+          query_embedding: `[${queryEmbedding.join(',')}]`,
+          match_threshold: 0.5,
+          match_count: 8,
+          p_user_id: user.id
+        });
+
+        if (!matchError && matches && matches.length > 0) {
+          useSemanticSearch = true;
+          console.log(`Found ${matches.length} relevant chunks via semantic search`);
+          
+          // Build context from matched chunks
+          knowledgeContext = matches.map((m: { chunk_text: string; similarity: number }, i: number) => 
+            `[Chunk ${i + 1} - Relevance: ${(m.similarity * 100).toFixed(1)}%]\n${m.chunk_text}`
+          ).join('\n\n---\n\n');
+        }
+      } catch (embedError) {
+        console.error('Semantic search error, falling back to full text:', embedError);
+      }
     }
 
-    // Build context from knowledge sources
-    let knowledgeContext = '';
-    if (sources && sources.length > 0) {
-      knowledgeContext = sources.map(s => {
-        const sourceType = s.source_type === 'url' ? 'Website' : 'Document';
-        return `--- ${sourceType}: ${s.name} ---\n${s.extracted_text}`;
-      }).join('\n\n');
+    // Fallback to full text if no semantic search results
+    if (!useSemanticSearch) {
+      const { data: sources, error: sourcesError } = await supabase
+        .from('knowledge_sources')
+        .select('name, extracted_text, source_type')
+        .eq('user_id', user.id)
+        .eq('status', 'completed')
+        .not('extracted_text', 'is', null);
+
+      if (!sourcesError && sources && sources.length > 0) {
+        knowledgeContext = sources.map(s => {
+          const sourceType = s.source_type === 'url' ? 'Website' : 'Document';
+          // Limit each source to prevent context overflow
+          const text = s.extracted_text.length > 3000 
+            ? s.extracted_text.substring(0, 3000) + '...' 
+            : s.extracted_text;
+          return `--- ${sourceType}: ${s.name} ---\n${text}`;
+        }).join('\n\n');
+      }
     }
 
     // Build system prompt
@@ -86,8 +148,9 @@ CRITICAL RULES:
 3. Never make up or hallucinate information.
 4. Be helpful, clear, and concise.
 5. If asked about topics outside the knowledge base, politely redirect to what you can help with.
+6. When possible, cite which source your information comes from.
 
-KNOWLEDGE BASE:
+${useSemanticSearch ? 'RELEVANT KNOWLEDGE CHUNKS (ranked by relevance):' : 'KNOWLEDGE BASE:'}
 ${knowledgeContext}`
       : `You are a helpful AI assistant for a knowledge base chatbot. 
 
@@ -95,7 +158,7 @@ Currently, there are no knowledge sources configured. When users ask questions, 
 
 Guide them to go to the "Knowledge Sources" page to add content. Be friendly and helpful in explaining the process.`;
 
-    console.log('Processing chat for user:', user.id, 'with', sources?.length || 0, 'knowledge sources');
+    console.log('Using', useSemanticSearch ? 'semantic search' : 'full text', 'with context length:', knowledgeContext.length);
 
     // Call Lovable AI Gateway with streaming
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
