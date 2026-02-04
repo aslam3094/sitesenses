@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { motion, useAnimation, useInView } from "framer-motion";
 import { Button } from "@/components/ui/button";
+import { FlickeringGrid } from "@/components/ui/flickering-grid";
 
 const labels = [
   { icon: Sparkles, label: "AI-Powered Answers" },
@@ -63,12 +64,22 @@ export function HeroSection() {
 
   return (
     <div ref={ref} className="relative min-h-screen overflow-hidden bg-foreground">
+      {/* Flickering Grid Background */}
+      <FlickeringGrid
+        className="absolute inset-0 z-0"
+        squareSize={4}
+        gridGap={6}
+        color="rgb(245, 158, 11)"
+        maxOpacity={0.15}
+        flickerChance={0.1}
+      />
+      
       {/* Background gradient effects */}
-      <div className="absolute inset-0 bg-gradient-to-br from-foreground via-foreground to-accent/20" />
-      <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-accent/10 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/3" />
-      <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-accent/5 rounded-full blur-[100px] translate-y-1/2 -translate-x-1/3" />
+      <div className="absolute inset-0 bg-gradient-to-br from-foreground/90 via-foreground/80 to-accent/30 z-[1]" />
+      <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-accent/15 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/3 z-[1]" />
+      <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-accent/10 rounded-full blur-[100px] translate-y-1/2 -translate-x-1/3 z-[1]" />
 
-      <div className="relative container mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="relative z-[2] container mx-auto px-4 sm:px-6 lg:px-8">
         {/* Hero Content */}
         <div className="pt-32 pb-20 lg:pt-40 lg:pb-32">
           <div className="max-w-5xl mx-auto">
