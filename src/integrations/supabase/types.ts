@@ -14,7 +14,54 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      knowledge_sources: {
+        Row: {
+          created_at: string
+          error_message: string | null
+          extracted_text: string | null
+          file_name: string | null
+          file_path: string | null
+          id: string
+          metadata: Json | null
+          name: string
+          source_type: Database["public"]["Enums"]["source_type"]
+          status: Database["public"]["Enums"]["ingestion_status"]
+          updated_at: string
+          url: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          error_message?: string | null
+          extracted_text?: string | null
+          file_name?: string | null
+          file_path?: string | null
+          id?: string
+          metadata?: Json | null
+          name: string
+          source_type: Database["public"]["Enums"]["source_type"]
+          status?: Database["public"]["Enums"]["ingestion_status"]
+          updated_at?: string
+          url?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          error_message?: string | null
+          extracted_text?: string | null
+          file_name?: string | null
+          file_path?: string | null
+          id?: string
+          metadata?: Json | null
+          name?: string
+          source_type?: Database["public"]["Enums"]["source_type"]
+          status?: Database["public"]["Enums"]["ingestion_status"]
+          updated_at?: string
+          url?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +70,8 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      ingestion_status: "pending" | "processing" | "completed" | "error"
+      source_type: "url" | "document"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +198,9 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      ingestion_status: ["pending", "processing", "completed", "error"],
+      source_type: ["url", "document"],
+    },
   },
 } as const
