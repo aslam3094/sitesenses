@@ -1,4 +1,3 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/hooks/useAuth";
 import { EmbedCodeSection } from "@/components/embed/EmbedCodeSection";
 
@@ -6,10 +5,11 @@ const Settings = () => {
   const { user } = useAuth();
 
   return (
-    <div className="space-y-8 animate-fade-in">
+    <div className="space-y-8 page-transition">
+      {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold mb-2">Settings</h1>
-        <p className="text-muted-foreground">
+        <h1 className="text-2xl font-bold mb-2">Settings</h1>
+        <p className="text-sm text-muted-foreground">
           Manage your account and embed your chatbot.
         </p>
       </div>
@@ -17,28 +17,26 @@ const Settings = () => {
       {/* Embed Widget Section */}
       <EmbedCodeSection />
 
-      <Card className="border-border/50 shadow-soft">
-        <CardHeader>
-          <CardTitle>Account Information</CardTitle>
-          <CardDescription>Your basic account details</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
+      {/* Account Info */}
+      <div className="p-6 rounded-xl bg-card border border-border/60 shadow-card">
+        <h3 className="font-semibold mb-4">Account Information</h3>
+        <div className="space-y-4">
           <div>
-            <label className="text-sm font-medium text-muted-foreground">
+            <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
               Email
             </label>
-            <p className="text-foreground">{user?.email || "Not available"}</p>
+            <p className="text-foreground mt-1">{user?.email || "Not available"}</p>
           </div>
           <div>
-            <label className="text-sm font-medium text-muted-foreground">
+            <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
               Account ID
             </label>
-            <p className="text-foreground font-mono text-sm">
+            <p className="text-foreground font-mono text-sm mt-1">
               {user?.id || "Not available"}
             </p>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 };
