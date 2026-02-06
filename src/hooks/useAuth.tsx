@@ -43,16 +43,24 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const signUp = async (email: string, password: string) => {
     try {
-      const redirectUrl = `${window.location.origin}/`;
       const { error } = await supabase.auth.signUp({
         email,
         password,
-        options: {
-          emailRedirectTo: redirectUrl,
-        },
       });
       if (error) throw error;
-      toast.success("Check your email to confirm your account!");
+      
+      // Trigger n8n workflow to send custom welcome email
+      try {
+        await supabase.functions.invoke('trigger-signup-email', {
+          body: { email },
+        });
+      } catch (emailError) {
+        console.error("Failed to trigger welcome email:", emailError);
+        // Don't fail signup if email sending fails
+      }
+      
+      toast.success("Account created! Check your email for a welcome message.");
+      navigate("/dashboard");
       return { error: null };
     } catch (error) {
       const err = error as Error;
