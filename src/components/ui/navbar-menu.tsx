@@ -1,121 +1,137 @@
 "use client";
-import React from "react";
-import { motion } from "framer-motion";
+import React, { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
+import { ChevronDown } from "lucide-react";
 
-const transition = {
-  type: "spring" as const,
-  mass: 0.5,
-  damping: 11.5,
-  stiffness: 100,
-  restDelta: 0.001,
-  restSpeed: 0.001,
-};
-
-export const MenuItem = ({
-  setActive,
-  active,
-  item,
-  children,
-}: {
-  setActive: (item: string) => void;
-  active: string | null;
-  item: string;
+interface MenuItemProps {
+  label: string;
+  href?: string;
   children?: React.ReactNode;
-}) => {
+}
+
+export const NavDropdown = ({ label, href, children }: MenuItemProps) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   return (
-    <div onMouseEnter={() => setActive(item)} className="relative">
-      <motion.p
-        transition={{ duration: 0.3 }}
-        className="cursor-pointer text-white hover:opacity-90"
-      >
-        {item}
-      </motion.p>
-      {active !== null && (
-        <motion.div
-          initial={{ opacity: 0, scale: 0.85, y: 10 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          transition={transition}
+    <div ref={dropdownRef} className="relative">
+      {href ? (
+        <Link
+          to={href}
+          className="flex items-center gap-1 px-4 py-2 text-sm font-medium text-white/80 hover:text-white transition-colors"
         >
-          {active === item && (
-            <div className="absolute top-[calc(100%_+_1.2rem)] left-1/2 transform -translate-x-1/2 pt-4">
-              <motion.div
-                transition={transition}
-                layoutId="active"
-                className="bg-black backdrop-blur-md rounded-2xl overflow-hidden border border-white/10 shadow-xl"
-              >
-                <motion.div
-                  layout
-                  className="w-max h-full p-4"
-                >
-                  {children}
-                </motion.div>
-              </motion.div>
-            </div>
+          {label}
+        </Link>
+      ) : (
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          className={cn(
+            "flex items-center gap-1 px-4 py-2 text-sm font-medium text-white/80 hover:text-white transition-colors",
+            isOpen && "text-white"
           )}
-        </motion.div>
+        >
+          {label}
+          <ChevronDown
+            className={cn(
+              "w-4 h-4 transition-transform duration-200",
+              isOpen && "rotate-180"
+            )}
+          />
+        </button>
+      )}
+      
+      {children && isOpen && (
+        <div className="absolute top-full left-1/2 -translate-x-1/2 pt-3 w-56">
+          <div className="bg-black/95 backdrop-blur-md rounded-xl border border-white/10 shadow-2xl overflow-hidden">
+            <div className="p-2">
+              {children}
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
 };
 
-export const Menu = ({
-  setActive,
-  children,
-}: {
-  setActive: (item: string | null) => void;
-  children: React.ReactNode;
-}) => {
+export const NavLink = ({ to, children }: { to: string; children: React.ReactNode }) => {
   return (
-    <nav
-      onMouseLeave={() => setActive(null)}
-      className="relative rounded-full flex justify-center space-x-4 px-6 py-3"
+    <Link
+      to={to}
+      className="px-4 py-2 text-sm font-medium text-white/80 hover:text-white transition-colors"
     >
       {children}
-    </nav>
-  );
-};
-
-export const ProductItem = ({
-  title,
-  description,
-  href,
-  src,
-}: {
-  title: string;
-  description: string;
-  href: string;
-  src: string;
-}) => {
-  return (
-    <Link to={href} className="flex space-x-3">
-      <img
-        src={src}
-        width={140}
-        height={70}
-        alt={title}
-        className="flex-shrink-0 rounded-md object-cover w-20 h-14"
-      />
-      <div>
-        <h4 className="text-base font-bold mb-1 text-white">
-          {title}
-        </h4>
-        <p className="text-white/60 text-xs max-w-[10rem]">
-          {description}
-        </p>
-      </div>
     </Link>
   );
 };
 
-export const HoveredLink = ({ children, className, ...rest }: React.ComponentProps<typeof Link>) => {
+export const DropdownItem = ({ to, children, onClick }: { to?: string; children: React.ReactNode; onClick?: () => void }) => {
+  const handleClick = () => {
+    if (onClick) onClick();
+  };
+
+  if (to) {
+    return (
+      <Link
+        to={to}
+        onClick={handleClick}
+        className="block px-3 py-2 text-sm text-white/70 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
+      >
+        {children}
+      </Link>
+    );
+  }
+
   return (
-    <Link
-      {...rest}
-      className={cn("text-white/70 hover:text-white transition-colors", className)}
+    <button
+      onClick={handleClick}
+      className="w-full text-left px-3 py-2 text-sm text-white/70 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
     >
       {children}
+    </button>
+  );
+};
+
+export const ProductCard = ({
+  title,
+  description,
+  href,
+  image,
+}: {
+  title: string;
+  description: string;
+  href: string;
+  image: string;
+}) => {
+  return (
+    <Link
+      to={href}
+      className="flex items-center gap-3 p-2 -m-2 rounded-lg hover:bg-white/10 transition-colors"
+    >
+      <img
+        src={image}
+        alt={title}
+        className="w-14 h-10 rounded-md object-cover"
+      />
+      <div>
+        <h4 className="text-sm font-medium text-white">
+          {title}
+        </h4>
+        <p className="text-xs text-white/50">
+          {description}
+        </p>
+      </div>
     </Link>
   );
 };

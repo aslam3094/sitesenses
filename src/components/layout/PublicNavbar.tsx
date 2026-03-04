@@ -1,15 +1,13 @@
 "use client";
 
-import { Link, useLocation } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu as NavMenu, MenuItem, ProductItem, HoveredLink } from "@/components/ui/navbar-menu";
+import { NavDropdown, NavLink, DropdownItem, ProductCard } from "@/components/ui/navbar-menu";
 import { Menu, MoveRight, X, Brain } from "lucide-react";
 import { useState } from "react";
 
 function PublicNavbar() {
-  const [active, setActive] = useState<string | null>(null);
   const [isOpen, setOpen] = useState(false);
-  const location = useLocation();
 
   return (
     <header className="w-full z-50 fixed top-0 left-0 bg-transparent">
@@ -25,58 +23,48 @@ function PublicNavbar() {
         </div>
 
         {/* Desktop Navigation */}
-        <div className="hidden lg:flex items-center justify-center flex-1">
-          <NavMenu setActive={setActive}>
-            <MenuItem setActive={setActive} active={active} item="Home">
-              <div className="flex flex-col space-y-3 text-sm">
-                <HoveredLink to="/">Home Page</HoveredLink>
-                <HoveredLink to="/#features">Features</HoveredLink>
-              </div>
-            </MenuItem>
-            <MenuItem setActive={setActive} active={active} item="Products">
-              <div className="grid grid-cols-2 gap-4 p-4">
-                <ProductItem
+        <nav className="hidden lg:flex items-center justify-center flex-1">
+          <div className="flex items-center gap-1">
+            <NavLink to="/">Home</NavLink>
+            
+            <NavDropdown label="Products">
+              <div className="space-y-1">
+                <ProductCard
                   title="AI Chatbot"
-                  href="/chatbot"
-                  src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=300&h=200&fit=crop"
                   description="Build intelligent chatbots"
+                  href="/chatbot"
+                  image="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=300&h=200&fit=crop"
                 />
-                <ProductItem
+                <ProductCard
                   title="Knowledge Base"
-                  href="/knowledge"
-                  src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=300&h=200&fit=crop"
                   description="Manage your content"
+                  href="/knowledge"
+                  image="https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=300&h=200&fit=crop"
                 />
-                <ProductItem
+                <ProductCard
                   title="Embed Widget"
-                  href="/widget"
-                  src="https://images.unsplash.com/photo-1518770660439-4636190af475?w=300&h=200&fit=crop"
                   description="Add to your site"
+                  href="/widget"
+                  image="https://images.unsplash.com/photo-1518770660439-4636190af475?w=300&h=200&fit=crop"
                 />
-                <ProductItem
+                <ProductCard
                   title="Analytics"
-                  href="/dashboard"
-                  src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=300&h=200&fit=crop"
                   description="Track performance"
+                  href="/dashboard"
+                  image="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=300&h=200&fit=crop"
                 />
               </div>
-            </MenuItem>
-            <MenuItem setActive={setActive} active={active} item="Resources">
-              <div className="flex flex-col space-y-3 text-sm">
-                <HoveredLink to="/blog">Blog</HoveredLink>
-                <HoveredLink to="/blog">Documentation</HoveredLink>
-                <HoveredLink to="/blog">Help Center</HoveredLink>
-              </div>
-            </MenuItem>
-            <MenuItem setActive={setActive} active={active} item="Pricing">
-              <div className="flex flex-col space-y-3 text-sm">
-                <HoveredLink to="/pricing">View Plans</HoveredLink>
-                <HoveredLink to="/pricing">Enterprise</HoveredLink>
-                <HoveredLink to="/pricing">FAQ</HoveredLink>
-              </div>
-            </MenuItem>
-          </NavMenu>
-        </div>
+            </NavDropdown>
+            
+            <NavDropdown label="Resources">
+              <DropdownItem to="/blog">Blog</DropdownItem>
+              <DropdownItem to="/blog">Documentation</DropdownItem>
+              <DropdownItem to="/blog">Help Center</DropdownItem>
+            </NavDropdown>
+            
+            <NavLink to="/pricing">Pricing</NavLink>
+          </div>
+        </nav>
 
         {/* Right Side - Auth Buttons */}
         <div className="hidden lg:flex items-center gap-3">
