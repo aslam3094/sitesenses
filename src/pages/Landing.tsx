@@ -1,8 +1,7 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Brain, Upload, Globe, MessageSquare, Shield, Zap, ArrowRight, Check, Users, BarChart3 } from "lucide-react";
-import { HeroSection } from "@/components/landing/HeroSection";
-import { FlickeringGrid } from "@/components/ui/flickering-grid";
+import { GLSLHills } from "@/components/ui/glsl-hills";
 
 const Landing = () => {
   const features = [
@@ -37,20 +36,32 @@ const Landing = () => {
 
   return (
     <div className="flex flex-col relative">
-      {/* Global Flickering Grid Background */}
-      <div className="fixed inset-0 z-0 pointer-events-none">
-        <FlickeringGrid
-          className="w-full h-full"
-          squareSize={4}
-          gridGap={6}
-          color="rgb(245, 158, 11)"
-          maxOpacity={0.08}
-          flickerChance={0.1}
-        />
-      </div>
-
-      {/* Hero Section */}
-      <HeroSection />
+      {/* Hero Section with GLSL Hills */}
+      <section className="relative h-[calc(100vh-3.5rem)] min-h-[600px] flex items-center justify-center overflow-hidden bg-black">
+        <GLSLHills />
+        <div className="space-y-6 pointer-events-none z-10 text-center absolute inset-0 flex flex-col items-center justify-center">
+          <h1 className="font-semibold text-7xl whitespace-pre-wrap text-white">
+            <span className="italic text-6xl font-thin">AI That Speaks <br /></span>
+            Louder Than Words
+          </h1>
+          <p className="text-sm text-white/60 max-w-lg">
+            Train your AI chatbot on your website and documents. Provide instant, accurate answers to your customers 24/7.
+          </p>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pointer-events-auto pt-4">
+            <Link to="/auth?mode=signup">
+              <Button size="lg" className="min-w-[160px]">
+                Start for Free
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </Link>
+            <Link to="/pricing">
+              <Button size="lg" variant="outline" className="min-w-[160px] border-white/40 text-white bg-white/10 hover:bg-white/20 hover:border-white/60">
+                View Pricing
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </section>
 
       {/* Benefits Section */}
       <section className="py-10 md:py-12 relative z-10 bg-background/80 backdrop-blur-sm">
