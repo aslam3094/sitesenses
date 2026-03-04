@@ -1,11 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Globe, Upload, FileText, Trash2, Link2, Loader2, Plus, ArrowLeft, Check, X, Database } from "lucide-react";
+import { Globe, Upload, FileText, Trash2, Link2, Loader2, Plus, ArrowLeft, Check, X, Database, Brain } from "lucide-react";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 import { chatbotApi } from "@/lib/api/chatbot";
 import { knowledgeApi, type KnowledgeSource } from "@/lib/api/knowledge";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -32,6 +33,42 @@ const ChatbotSources = () => {
     queryFn: () => chatbotApi.fetchChatbotSources(id!),
     enabled: !!id,
   });
+
+  // Fetch embedding counts for all sources
+  const { data: sourcesWithEmbeddings = [] } = useQuery({
+    queryKey: ['sources-embeddings', chatbotSources.map((cs: { source_id: string }) => cs.source_id)],
+    queryFn: async () => {
+      const sources = chatbotSources.map((cs: { source_id: string }) => cs.source_id);
+      if (sources.length === 0) return [];
+      const { data } = await supabase
+        .from('embeddings')
+        .select('source_id')
+        .in('source_id', sources);
+      
+      const counts: Record<string, number> = {};
+      data?.forEach((e: { source_id: string }) => {
+        counts[e.source_id] = (counts[e.source_id] || 0) + 1;
+      });
+      return counts;
+    },
+    enabled: chatbotSources.length > 0,
+  });
+
+  // Auto-refresh sources while processing
+  useEffect(() => {
+    const hasPendingSources = allSources.some((s: KnowledgeSource) => s.status === 'pending' || s.status === 'processing');
+    if (hasPendingSources) {
+      const interval = setInterval(() => {
+        queryClient.invalidateQueries({ queryKey: ['knowledge-sources'] });
+        queryClient.invalidateQueries({ queryKey: ['sources-embeddings'] });
+      }, 5000);
+      return () => clearInterval(interval);
+    }
+  }, [allSources, queryClient]);
+
+  const isChatbotReady = chatbotSources.length > 0 && 
+    allSources.filter((s: KnowledgeSource) => chatbotSources.some((cs: { source_id: string }) => cs.source_id === s.id))
+      .every((s: KnowledgeSource) => s.status === 'completed');
 
   const addSourceMutation = useMutation({
     mutationFn: (sourceId: string) => chatbotApi.addSourceToChatbot(id!, sourceId),
@@ -94,12 +131,18 @@ const ChatbotSources = () => {
             <ArrowLeft className="h-4 w-4" />
           </Button>
         </Link>
-        <div>
+        <div className="flex-1">
           <h1 className="text-2xl font-bold">Manage Sources</h1>
           <p className="text-sm text-muted-foreground">
             Add knowledge sources to train {chatbot.name}
           </p>
         </div>
+        {isChatbotReady && (
+          <div className="flex items-center gap-2 px-3 py-1.5 bg-green-100 text-green-700 rounded-full text-sm font-medium">
+            <Brain className="h-4 w-4" />
+            Ready
+          </div>
+        )}
       </div>
 
       {/* Add URL */}
@@ -176,7 +219,23 @@ const ChatbotSources = () => {
                       )}
                       <div>
                         <p className="font-medium text-sm">{source.name}</p>
-                        <p className="text-xs text-muted-foreground capitalize">{source.status}</p>
+                        <div className="flex items-center gap-2 text-xs">
+                          <span className={`capitalize font-medium ${
+                            source.status === 'completed' ? 'text-green-600' :
+                            source.status === 'processing' ? 'text-yellow-600' :
+                            source.status === 'error' ? 'text-red-600' :
+                            'text-muted-foreground'
+                          }`}>
+                            {source.status === 'processing' && <Loader2 className="h-3 w-3 animate-spin inline" />}
+                            {source.status === 'completed' && <Check className="h-3 w-3 inline" />}
+                            {source.status}
+                          </span>
+                          {source.status === 'completed' && sourcesWithEmbeddings[cs.source_id] && (
+                            <span className="text-muted-foreground">
+                              • {sourcesWithEmbeddings[cs.source_id]} chunks embedded
+                            </span>
+                          )}
+                        </div>
                       </div>
                     </div>
                     <Button
@@ -228,7 +287,18 @@ const ChatbotSources = () => {
                     )}
                     <div>
                       <p className="font-medium text-sm">{source.name}</p>
-                      <p className="text-xs text-muted-foreground capitalize">{source.status}</p>
+                      <div className="flex items-center gap-2 text-xs">
+                        <span className={`capitalize font-medium ${
+                          source.status === 'completed' ? 'text-green-600' :
+                          source.status === 'processing' ? 'text-yellow-600' :
+                          source.status === 'error' ? 'text-red-600' :
+                          'text-muted-foreground'
+                        }`}>
+                          {source.status === 'processing' && <Loader2 className="h-3 w-3 animate-spin inline" />}
+                          {source.status === 'completed' && <Check className="h-3 w-3 inline" />}
+                          {source.status}
+                        </span>
+                      </div>
                     </div>
                   </div>
                   <Button
