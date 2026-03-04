@@ -3,7 +3,8 @@ import { Link, useSearchParams, Navigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Brain, Loader2, Mail, Lock, ArrowRight } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Brain, Loader2, Mail, Lock, ArrowRight, MailCheck, AlertCircle } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { z } from "zod";
 
@@ -15,12 +16,14 @@ const authSchema = z.object({
 const Auth = () => {
   const [searchParams] = useSearchParams();
   const isSignUp = searchParams.get("mode") === "signup";
-  const { user, signIn, signUp, loading: authLoading } = useAuth();
+  const { user, signUp, signIn, loading: authLoading } = useAuth();
   
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
+  const [errors, setErrors] = useState<{ email?: string; password?: string }>();
+  const [showVerificationMessage, setShowVerificationMessage] = useState(false);
+  const [verificationEmail, setVerificationEmail] = useState("");
 
   if (user) {
     return <Navigate to="/dashboard" replace />;
@@ -43,7 +46,13 @@ const Auth = () => {
 
     setLoading(true);
     if (isSignUp) {
-      await signUp(email, password);
+      const result = await signUp(email, password);
+      if (result.needsVerification) {
+        setVerificationEmail(email);
+        setShowVerificationMessage(true);
+        setLoading(false);
+        return;
+      }
     } else {
       await signIn(email, password);
     }
@@ -54,6 +63,47 @@ const Auth = () => {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <Loader2 className="h-6 w-6 animate-spin text-accent" />
+      </div>
+    );
+  }
+
+  if (showVerificationMessage) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-muted/20 p-4">
+        <Card className="w-full max-w-md animate-fade-in">
+          <CardContent className="pt-8 pb-8">
+            <div className="text-center">
+              <div className="mx-auto w-16 h-16 rounded-full bg-success/10 flex items-center justify-center mb-6">
+                <MailCheck className="h-8 w-8 text-success" />
+              </div>
+              <h1 className="text-2xl font-bold mb-3">Check your email</h1>
+              <p className="text-muted-foreground mb-6">
+                We've sent a verification link to
+              </p>
+              <p className="font-medium text-foreground mb-6">{verificationEmail}</p>
+              <div className="bg-muted/50 rounded-lg p-4 mb-6">
+                <div className="flex items-start gap-3">
+                  <AlertCircle className="h-5 w-5 text-warning shrink-0 mt-0.5" />
+                  <p className="text-sm text-muted-foreground text-left">
+                    Click the link in the email to verify your account. The email may take a few minutes to arrive. Check your spam folder if you don't see it.
+                  </p>
+                </div>
+              </div>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setShowVerificationMessage(false);
+                  setVerificationEmail("");
+                  setEmail("");
+                  setPassword("");
+                }}
+                className="w-full"
+              >
+                Back to sign up
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     );
   }
@@ -98,11 +148,11 @@ const Auth = () => {
                   placeholder="you@example.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className={`pl-10 h-11 ${errors.email ? "border-destructive" : ""}`}
+                  className={`pl-10 h-11 ${errors?.email ? "border-destructive" : ""}`}
                   disabled={loading}
                 />
               </div>
-              {errors.email && (
+              {errors?.email && (
                 <p className="text-xs text-destructive">{errors.email}</p>
               )}
             </div>
@@ -117,11 +167,11 @@ const Auth = () => {
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className={`pl-10 h-11 ${errors.password ? "border-destructive" : ""}`}
+                  className={`pl-10 h-11 ${errors?.password ? "border-destructive" : ""}`}
                   disabled={loading}
                 />
               </div>
-              {errors.password && (
+              {errors?.password && (
                 <p className="text-xs text-destructive">{errors.password}</p>
               )}
             </div>

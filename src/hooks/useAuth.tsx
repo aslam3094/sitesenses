@@ -8,7 +8,7 @@ interface AuthContextType {
   user: User | null;
   session: Session | null;
   loading: boolean;
-  signUp: (email: string, password: string) => Promise<{ error: Error | null }>;
+  signUp: (email: string, password: string) => Promise<{ error: Error | null; needsVerification?: boolean }>;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
 }
@@ -43,11 +43,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const signUp = async (email: string, password: string) => {
     try {
-      const { error } = await supabase.auth.signUp({
+      const { error, data } = await supabase.auth.signUp({
         email,
         password,
       });
-      if (error) throw error;
+      
+      if (error) {
+        // Check if email confirmation is required
+        if (error.message.includes("email") && error.message.includes("confirm")) {
+          return { error: null, needsVerification: true };
+        }
+        throw error;
+      }
+      
+      // Check if email confirmation is required
+      if (data.user && !data.session) {
+        return { error: null, needsVerification: true };
+      }
       
       // Trigger n8n workflow to send custom welcome email
       try {
@@ -56,12 +68,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         });
       } catch (emailError) {
         console.error("Failed to trigger welcome email:", emailError);
-        // Don't fail signup if email sending fails
       }
       
-      toast.success("Account created! Check your email for a welcome message.");
-      navigate("/dashboard");
-      return { error: null };
+      return { error: null, needsVerification: false };
     } catch (error) {
       const err = error as Error;
       toast.error(err.message);
