@@ -8,10 +8,9 @@ interface Message {
   content: string;
 }
 
-const WIDGET_CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/widget-chat`;
-
 const ChatWidget = () => {
   const [searchParams] = useSearchParams();
+  const chatbotId = searchParams.get("chatbot");
   const userId = searchParams.get("uid");
   const primaryColor = searchParams.get("color") || "#6366f1";
   const title = searchParams.get("title") || "Chat with us";
@@ -28,13 +27,12 @@ const ChatWidget = () => {
     }
   }, [messages]);
 
-  // Send message to parent window about resize
   useEffect(() => {
     window.parent.postMessage({ type: 'widget-resize', isOpen }, '*');
   }, [isOpen]);
 
   const handleSend = async () => {
-    if (!input.trim() || loading || !userId) return;
+    if (!input.trim() || loading) return;
 
     const userMessage: Message = {
       id: crypto.randomUUID(),
@@ -51,10 +49,11 @@ const ChatWidget = () => {
     const assistantId = crypto.randomUUID();
 
     try {
-      const response = await fetch(WIDGET_CHAT_URL, {
+      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/widget-chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          chatbotId,
           userId,
           messages: updatedMessages.map(m => ({ role: m.role, content: m.content }))
         }),
@@ -128,17 +127,16 @@ const ChatWidget = () => {
     }
   };
 
-  if (!userId) {
+  if (!chatbotId) {
     return (
       <div className="flex items-center justify-center h-screen bg-gray-100 p-4">
-        <p className="text-red-500 text-sm">Widget configuration error: Missing user ID</p>
+        <p className="text-red-500 text-sm">Widget configuration error: Missing chatbot ID</p>
       </div>
     );
   }
 
   return (
     <div className="font-sans">
-      {/* Chat toggle button */}
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
@@ -149,10 +147,8 @@ const ChatWidget = () => {
         </button>
       )}
 
-      {/* Chat window */}
       {isOpen && (
         <div className="fixed bottom-4 right-4 w-[360px] h-[500px] bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden border border-gray-200">
-          {/* Header */}
           <div
             style={{ backgroundColor: primaryColor }}
             className="px-4 py-3 flex items-center justify-between text-white"
@@ -169,7 +165,6 @@ const ChatWidget = () => {
             </button>
           </div>
 
-          {/* Messages */}
           <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-3">
             {messages.length === 0 && (
               <div className="text-center py-8">
@@ -206,7 +201,6 @@ const ChatWidget = () => {
             )}
           </div>
 
-          {/* Input */}
           <div className="border-t border-gray-200 p-3">
             <form
               onSubmit={(e) => {

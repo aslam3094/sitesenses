@@ -6,7 +6,6 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
 };
 
-// Generate embedding for query using MiniMax
 async function generateQueryEmbedding(text: string, apiKey: string): Promise<number[]> {
   const response = await fetch('https://api.minimax.chat/v1/embeddings', {
     method: 'POST',
@@ -35,11 +34,11 @@ serve(async (req) => {
   }
 
   try {
-    const { messages, userId } = await req.json();
+    const { messages, chatbotId, userId } = await req.json();
 
-    if (!userId) {
+    if (!chatbotId && !userId) {
       return new Response(
-        JSON.stringify({ success: false, error: 'User ID is required' }),
+        JSON.stringify({ success: false, error: 'Chatbot ID or User ID is required' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -62,39 +61,80 @@ serve(async (req) => {
       );
     }
 
-    // Create Supabase client with service role
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Verify user exists
-    const { data: userCheck, error: userError } = await supabase.auth.admin.getUserById(userId);
-    if (userError || !userCheck?.user) {
-      return new Response(
-        JSON.stringify({ success: false, error: 'Invalid user ID' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+    let userIdToUse = userId;
+    let chatbotInfo = null;
+
+    // If chatbotId is provided, get chatbot info and its sources
+    if (chatbotId) {
+      const { data: chatbot, error: chatbotError } = await supabase
+        .from('chatbots')
+        .select('*')
+        .eq('id', chatbotId)
+        .single();
+
+      if (chatbotError || !chatbot) {
+        return new Response(
+          JSON.stringify({ success: false, error: 'Invalid chatbot ID' }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      chatbotInfo = chatbot;
+      userIdToUse = chatbot.user_id;
     }
 
     // Get the latest user message for semantic search
     const latestMessage = messages[messages.length - 1];
     const query = latestMessage?.content || '';
 
-    console.log('Widget chat for user:', userId, 'query:', query.substring(0, 100));
+    console.log('Widget chat:', chatbotId ? `chatbot ${chatbotId}` : `user ${userId}`, 'query:', query.substring(0, 100));
 
     let knowledgeContext = '';
     let useSemanticSearch = false;
 
-    // Try semantic search if MiniMax key is available
-    if (MINIMAX_API_KEY && query) {
+    // Get source IDs - either from chatbot_sources or from all user sources
+    let sourceIds: string[] = [];
+    
+    if (chatbotId) {
+      // Get sources linked to this chatbot
+      const { data: chatbotSources, error: csError } = await supabase
+        .from('chatbot_sources')
+        .select('source_id')
+        .eq('chatbot_id', chatbotId);
+      
+      if (!csError && chatbotSources) {
+        sourceIds = chatbotSources.map(cs => cs.source_id);
+      }
+    }
+
+    // If no chatbot sources, try to get user's knowledge sources
+    if (sourceIds.length === 0 && userIdToUse) {
+      const { data: userSources, error: usError } = await supabase
+        .from('knowledge_sources')
+        .select('id')
+        .eq('user_id', userIdToUse)
+        .eq('status', 'completed');
+      
+      if (!usError && userSources) {
+        sourceIds = userSources.map(s => s.id);
+      }
+    }
+
+    // Try semantic search if MiniMax key is available and we have sources
+    if (MINIMAX_API_KEY && query && sourceIds.length > 0) {
       try {
         const queryEmbedding = await generateQueryEmbedding(query, MINIMAX_API_KEY);
         
-        const { data: matches, error: matchError } = await supabase.rpc('match_embeddings', {
+        // Search embeddings filtered by source IDs
+        const { data: matches, error: matchError } = await supabase.rpc('match_embeddings_by_sources', {
           query_embedding: `[${queryEmbedding.join(',')}]`,
           match_threshold: 0.5,
           match_count: 8,
-          p_user_id: userId
+          p_source_ids: sourceIds
         });
 
         if (!matchError && matches && matches.length > 0) {
@@ -111,11 +151,11 @@ serve(async (req) => {
     }
 
     // Fallback to full text if no semantic search results
-    if (!useSemanticSearch) {
+    if (!useSemanticSearch && sourceIds.length > 0) {
       const { data: sources, error: sourcesError } = await supabase
         .from('knowledge_sources')
         .select('name, extracted_text, source_type')
-        .eq('user_id', userId)
+        .in('id', sourceIds)
         .eq('status', 'completed')
         .not('extracted_text', 'is', null);
 
@@ -130,27 +170,38 @@ serve(async (req) => {
       }
     }
 
-    // Build system prompt with strict RAG constraints
+    // Build system prompt
     const systemPrompt = knowledgeContext 
-      ? `You are a helpful customer support assistant that answers questions EXCLUSIVELY using the provided context.
+      ? `You are a knowledge base assistant that answers questions EXCLUSIVELY using the provided context.
 
-RULES:
-1. ONLY use information from the CONTEXT below.
-2. If the answer is NOT in the context, respond: "I don't have that information yet. Please contact our support team for help."
-3. NEVER use general knowledge or make assumptions.
-4. Be concise, friendly, and helpful.
-5. If only partial information is available, share what you found.
+ABSOLUTE RULES - FOLLOW EXACTLY:
+1. You MUST ONLY use information explicitly stated in the CONTEXT below.
+2. If the answer is NOT in the context, respond EXACTLY with: "I don't have that information yet."
+3. NEVER use your general knowledge, training data, or make assumptions.
+4. NEVER hallucinate, guess, or infer beyond what is explicitly stated.
+5. Do NOT say things like "based on my knowledge" or "generally speaking".
+6. If only partial information is available, share what you found and say: "I don't have complete information on this topic yet."
+7. When answering, carefully synthesize the information from the provided context.
+8. Respond in a friendly and helpful manner.
+9. Present answers clearly in point-wise format based only on the information found in the context.
+10. Be concise and directly reference the context.
 
 CONTEXT:
-${knowledgeContext}`
-      : `You are a customer support assistant.
+${knowledgeContext}
 
-There is no knowledge base content available yet. Respond with:
-"I'm still learning about this topic. Please contact our support team directly for assistance."`;
+Remember: If it's not in the CONTEXT above, say "I don't have that information yet." — no exceptions.`
+      : `You are a knowledge base assistant.
+
+IMPORTANT: There are no knowledge sources configured yet. 
+
+For ANY question the user asks, respond with:
+"I don't have any knowledge sources to answer your question yet. Please add content (website URLs or documents) to the Knowledge Sources page first."
+
+Do not attempt to answer any questions using your general knowledge.`;
 
     console.log('Using', useSemanticSearch ? 'semantic search' : 'full text', 'with context length:', knowledgeContext.length);
 
-    // Call MiniMax API with streaming
+    // Call AI API with streaming
     const aiApiKey = MINIMAX_API_KEY || LOVABLE_API_KEY;
     const aiEndpoint = MINIMAX_API_KEY 
       ? 'https://api.minimax.chat/v1/text/chatcompletion_v2' 
@@ -182,7 +233,7 @@ There is no knowledge base content available yet. Respond with:
       }
       if (response.status === 402) {
         return new Response(
-          JSON.stringify({ success: false, error: 'Service temporarily unavailable.' }),
+          JSON.stringify({ success: false, error: 'AI credits exhausted. Please add credits to continue.' }),
           { status: 402, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
