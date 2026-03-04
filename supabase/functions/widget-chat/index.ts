@@ -6,23 +6,23 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
 };
 
-// Generate embedding for query using OpenAI
+// Generate embedding for query using MiniMax
 async function generateQueryEmbedding(text: string, apiKey: string): Promise<number[]> {
-  const response = await fetch('https://api.openai.com/v1/embeddings', {
+  const response = await fetch('https://api.minimax.chat/v1/embeddings', {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${apiKey}`,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      model: 'text-embedding-3-small',
-      input: text,
+      model: 'embo-01',
+      text: text,
     }),
   });
 
   if (!response.ok) {
     const error = await response.json();
-    throw new Error(`OpenAI API error: ${error.error?.message || response.statusText}`);
+    throw new Error(`MiniMax API error: ${error.error?.message || response.statusText}`);
   }
 
   const data = await response.json();
@@ -51,16 +51,16 @@ serve(async (req) => {
       );
     }
 
+    const MINIMAX_API_KEY = Deno.env.get('MINIMAX_API_KEY');
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
-    if (!LOVABLE_API_KEY) {
-      console.error('LOVABLE_API_KEY not configured');
+    
+    if (!MINIMAX_API_KEY && !LOVABLE_API_KEY) {
+      console.error('MINIMAX_API_KEY not configured');
       return new Response(
         JSON.stringify({ success: false, error: 'AI service not configured' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
-
-    const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
 
     // Create Supabase client with service role
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
@@ -85,10 +85,10 @@ serve(async (req) => {
     let knowledgeContext = '';
     let useSemanticSearch = false;
 
-    // Try semantic search if OpenAI key is available
-    if (OPENAI_API_KEY && query) {
+    // Try semantic search if MiniMax key is available
+    if (MINIMAX_API_KEY && query) {
       try {
-        const queryEmbedding = await generateQueryEmbedding(query, OPENAI_API_KEY);
+        const queryEmbedding = await generateQueryEmbedding(query, MINIMAX_API_KEY);
         
         const { data: matches, error: matchError } = await supabase.rpc('match_embeddings', {
           query_embedding: `[${queryEmbedding.join(',')}]`,
@@ -150,15 +150,21 @@ There is no knowledge base content available yet. Respond with:
 
     console.log('Using', useSemanticSearch ? 'semantic search' : 'full text', 'with context length:', knowledgeContext.length);
 
-    // Call Lovable AI Gateway with streaming
-    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+    // Call MiniMax API with streaming
+    const aiApiKey = MINIMAX_API_KEY || LOVABLE_API_KEY;
+    const aiEndpoint = MINIMAX_API_KEY 
+      ? 'https://api.minimax.chat/v1/text/chatcompletion_v2' 
+      : 'https://ai.gateway.lovable.dev/v1/chat/completions';
+    const aiModel = MINIMAX_API_KEY ? 'MiniMax-Text-01' : 'google/gemini-3-flash-preview';
+    
+    const response = await fetch(aiEndpoint, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+        'Authorization': `Bearer ${aiApiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-3-flash-preview',
+        model: aiModel,
         messages: [
           { role: 'system', content: systemPrompt },
           ...messages

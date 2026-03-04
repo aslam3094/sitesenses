@@ -91,23 +91,23 @@ function splitIntoChunks(text: string): { text: string; tokenCount: number }[] {
   return chunks;
 }
 
-// Generate embeddings using OpenAI
+// Generate embeddings using MiniMax
 async function generateEmbedding(text: string, apiKey: string): Promise<number[]> {
-  const response = await fetch('https://api.openai.com/v1/embeddings', {
+  const response = await fetch('https://api.minimax.chat/v1/embeddings', {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${apiKey}`,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      model: 'text-embedding-3-small',
-      input: text,
+      model: 'embo-01',
+      text: text,
     }),
   });
 
   if (!response.ok) {
     const error = await response.json();
-    throw new Error(`OpenAI API error: ${error.error?.message || response.statusText}`);
+    throw new Error(`MiniMax API error: ${error.error?.message || response.statusText}`);
   }
 
   const data = await response.json();
@@ -129,11 +129,11 @@ serve(async (req) => {
       );
     }
 
-    const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
-    if (!OPENAI_API_KEY) {
-      console.error('OPENAI_API_KEY not configured');
+    const MINIMAX_API_KEY = Deno.env.get('MINIMAX_API_KEY') || Deno.env.get('OPENAI_API_KEY');
+    if (!MINIMAX_API_KEY) {
+      console.error('MINIMAX_API_KEY not configured');
       return new Response(
-        JSON.stringify({ success: false, error: 'OpenAI API key not configured' }),
+        JSON.stringify({ success: false, error: 'MiniMax API key not configured' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -213,7 +213,7 @@ serve(async (req) => {
       console.log(`Processing chunk ${i + 1}/${chunks.length} (${chunk.tokenCount} tokens)`);
       
       try {
-        const embedding = await generateEmbedding(chunk.text, OPENAI_API_KEY);
+        const embedding = await generateEmbedding(chunk.text, MINIMAX_API_KEY);
         
         embeddingsToInsert.push({
           user_id: user.id,
