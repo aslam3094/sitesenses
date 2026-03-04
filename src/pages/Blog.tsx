@@ -5,8 +5,183 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ArrowRight, Calendar, Plus } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
-import { blogApi } from "@/lib/api/blog";
+import { blogApi, type BlogPost } from "@/lib/api/blog";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
+
+const samplePosts: BlogPost[] = [
+  {
+    id: "1",
+    author_id: "sample",
+    title: "How AI Chatbots Are Revolutionizing Customer Support",
+    slug: "ai-chatbots-revolutionizing-customer-support",
+    excerpt: "Discover how AI-powered chatbots are transforming the way businesses handle customer support, reducing response times and improving satisfaction rates.",
+    content: `
+# How AI Chatbots Are Revolutionizing Customer Support
+
+In today's fast-paced digital world, customers expect instant responses. AI chatbots have emerged as a game-changer for customer support, offering 24/7 availability and consistent service quality.
+
+## The Rise of AI-Powered Support
+
+Traditional customer support teams are often overwhelmed with repetitive queries. AI chatbots can handle these common questions instantly, freeing up human agents to focus on more complex issues.
+
+### Key Benefits
+
+1. **24/7 Availability**: Never miss a customer inquiry, even outside business hours
+2. **Instant Responses**: Reduce wait times from minutes to milliseconds
+3. **Cost Efficiency**: Reduce support costs by up to 30%
+4. **Consistent Quality**: Every customer receives the same high-quality response
+5. **Scalability**: Handle unlimited conversations simultaneously
+
+## Implementing Your First AI Chatbot
+
+Starting with an AI chatbot doesn't have to be complicated. Here's what you need to know:
+
+1. Identify common customer questions
+2. Choose a platform that integrates with your existing tools
+3. Train your chatbot on your specific content and documentation
+4. Monitor performance and continuously improve
+
+## Conclusion
+
+AI chatbots are no longer a luxury—they're a necessity for businesses looking to provide excellent customer support while managing costs effectively.
+    `,
+    cover_image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&h=450&fit=crop",
+    published: true,
+    published_at: "2024-01-15",
+    meta_title: "AI Chatbots in Customer Support",
+    meta_description: "Learn how AI chatbots are revolutionizing customer support",
+    created_at: "2024-01-15",
+    updated_at: "2024-01-15"
+  },
+  {
+    id: "2",
+    author_id: "sample",
+    title: "Building a Knowledge Base: A Complete Guide",
+    slug: "building-knowledge-base-complete-guide",
+    excerpt: "Learn how to create an effective knowledge base that powers your AI chatbot and helps customers find answers instantly.",
+    content: `
+# Building a Knowledge Base: A Complete Guide
+
+A well-structured knowledge base is the foundation of any successful AI chatbot implementation. This guide walks you through creating one from scratch.
+
+## Why You Need a Knowledge Base
+
+Your knowledge base is the source of truth that your AI chatbot uses to generate responses. The quality of your knowledge base directly impacts the quality of your chatbot's answers.
+
+### What to Include
+
+- Frequently asked questions
+- Product documentation
+- Troubleshooting guides
+- Policy information
+- Contact information
+
+## Best Practices
+
+1. **Keep it organized**: Use clear categories and tags
+2. **Write for your audience**: Use simple, clear language
+3. **Keep it updated**: Regularly review and update content
+4. **Monitor gaps**: Track what questions go unanswered
+
+## Conclusion
+
+A well-built knowledge base not only powers your AI chatbot but also helps your customers help themselves.
+    `,
+    cover_image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&h=450&fit=crop",
+    published: true,
+    published_at: "2024-01-20",
+    meta_title: "Building a Knowledge Base",
+    meta_description: "Complete guide to building a knowledge base for AI chatbots",
+    created_at: "2024-01-20",
+    updated_at: "2024-01-20"
+  },
+  {
+    id: "3",
+    author_id: "sample",
+    title: "5 Ways to Reduce Customer Support Costs with AI",
+    slug: "reduce-customer-support-costs-with-ai",
+    excerpt: "Looking to cut support costs without sacrificing quality? Here are five proven strategies leveraging AI technology.",
+    content: `
+# 5 Ways to Reduce Customer Support Costs with AI
+
+Customer support can be one of the largest expenses for a business. AI offers powerful solutions to reduce costs while maintaining—or even improving—service quality.
+
+## 1. Automate Common Inquiries
+
+Up to 80% of customer questions are repetitive. AI chatbots can handle these instantly, reducing the workload on your support team.
+
+## 2. Provide Self-Service Options
+
+When customers can find answers themselves, they don't need to contact support. AI-powered search makes finding information effortless.
+
+## 3. Improve First Contact Resolution
+
+AI can help agents find the right answers faster, improving first contact resolution rates and reducing repeat contacts.
+
+## 4. Optimize Agent Workflow
+
+AI can categorize and prioritize tickets, ensuring agents focus on the most important issues first.
+
+## 5. Predict and Prevent Issues
+
+AI can identify patterns in customer inquiries, helping you address problems before they escalate.
+
+## Conclusion
+
+AI isn't about replacing human agents—it's about empowering them to work more efficiently and focus on what matters most: solving complex problems.
+    `,
+    cover_image: "https://images.unsplash.com/photo-1553877522-43269d4ea984?w=800&h=450&fit=crop",
+    published: true,
+    published_at: "2024-01-25",
+    meta_title: "Reduce Support Costs with AI",
+    meta_description: "5 proven ways to reduce customer support costs using AI",
+    created_at: "2024-01-25",
+    updated_at: "2024-01-25"
+  },
+  {
+    id: "4",
+    author_id: "sample",
+    title: "The Future of AI: What to Expect in 2024",
+    slug: "future-of-ai-2024",
+    excerpt: "From advanced natural language processing to multimodal AI, explore the cutting-edge developments shaping the future of artificial intelligence.",
+    content: `
+# The Future of AI: What to Expect in 2024
+
+Artificial intelligence is evolving at an unprecedented pace. Here's what we expect to see in the coming year.
+
+## Multimodal AI
+
+AI systems that can process and understand multiple types of data—text, images, audio, and video—are becoming mainstream.
+
+## Better Context Understanding
+
+Next-generation AI models understand context better than ever, leading to more accurate and relevant responses.
+
+## Improved Personalization
+
+AI will become better at tailoring responses to individual users based on their history and preferences.
+
+## Enhanced Reasoning
+
+Advanced reasoning capabilities mean AI can tackle more complex problems that require logical thinking.
+
+## What This Means for Your Business
+
+These advances will make AI chatbots more capable than ever, enabling more sophisticated customer interactions.
+
+## Conclusion
+
+The future of AI is bright, and businesses that embrace these technologies will have a significant competitive advantage.
+    `,
+    cover_image: "https://images.unsplash.com/photo-1677442136019-21780ecad995?w=800&h=450&fit=crop",
+    published: true,
+    published_at: "2024-02-01",
+    meta_title: "Future of AI in 2024",
+    meta_description: "What to expect from AI in 2024",
+    created_at: "2024-02-01",
+    updated_at: "2024-02-01"
+  }
+];
 
 const Blog = () => {
   const { isAdmin } = useIsAdmin();
@@ -15,6 +190,8 @@ const Blog = () => {
     queryKey: ['blog-posts-public'],
     queryFn: blogApi.fetchPublishedPosts,
   });
+
+  const displayPosts = posts.length > 0 ? posts : samplePosts;
 
   const formatDate = (dateStr: string | null) => {
     if (!dateStr) return '';
@@ -65,18 +242,9 @@ const Blog = () => {
               </Card>
             ))}
           </div>
-        ) : posts.length === 0 ? (
-          <div className="text-center py-16">
-            <p className="text-muted-foreground text-lg">No blog posts yet.</p>
-            {isAdmin && (
-              <Link to="/admin/blog" className="mt-4 inline-block">
-                <Button>Create your first post</Button>
-              </Link>
-            )}
-          </div>
         ) : (
           <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
-            {posts.map((post, i) => (
+            {displayPosts.map((post, i) => (
               <Link key={post.id} to={`/blog/${post.slug}`}>
                 <Card
                   className="h-full border-border/50 shadow-soft hover:shadow-elevated transition-all hover:-translate-y-1 animate-slide-up overflow-hidden"
