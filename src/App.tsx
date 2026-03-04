@@ -20,6 +20,7 @@ import BlogPost from "@/pages/BlogPost";
 // Protected Pages
 import Dashboard from "@/pages/Dashboard";
 import Chatbot from "@/pages/Chatbot";
+import Chatbots from "@/pages/Chatbots";
 import KnowledgeSources from "@/pages/KnowledgeSources";
 import Settings from "@/pages/Settings";
 import AdminBlog from "@/pages/AdminBlog";
@@ -55,6 +56,7 @@ const App = () => (
             {/* Protected Routes */}
             <Route element={<AppLayout />}>
               <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/chatbots" element={<Chatbots />} />
               <Route path="/chatbot" element={<Chatbot />} />
               <Route path="/knowledge" element={<KnowledgeSources />} />
               <Route path="/settings" element={<Settings />} />
