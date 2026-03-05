@@ -1,13 +1,15 @@
 import { useState, useRef, useEffect } from "react";
+import { useParams, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Brain, Trash2, Loader2, Sparkles } from "lucide-react";
+import { Brain, Trash2, Loader2, Sparkles, ArrowLeft } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { ChatMessage, TypingIndicator } from "@/components/chat/ChatMessage";
 import { ChatInput } from "@/components/chat/ChatInput";
 import { EmptyChat } from "@/components/chat/EmptyChat";
 import { chatApi, ChatMessage as ChatMessageType } from "@/lib/api/chat";
+import { chatbotApi } from "@/lib/api/chatbot";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 interface LocalMessage {
@@ -18,20 +20,28 @@ interface LocalMessage {
   persisted?: boolean;
 }
 
-const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat`;
+const WIDGET_CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/widget-chat`;
 
 const Chatbot = () => {
+  const { id: chatbotId } = useParams<{ id: string }>();
   const { session } = useAuth();
   const queryClient = useQueryClient();
   const [messages, setMessages] = useState<LocalMessage[]>([]);
   const [loading, setLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // Fetch chat history
+  // Fetch chatbot info
+  const { data: chatbot, isLoading: chatbotLoading } = useQuery({
+    queryKey: ['chatbot', chatbotId],
+    queryFn: () => chatbotApi.fetchChatbot(chatbotId!),
+    enabled: !!chatbotId,
+  });
+
+  // Fetch chat history for this specific chatbot
   const { data: history, isLoading: historyLoading } = useQuery({
-    queryKey: ['chat-history'],
-    queryFn: chatApi.fetchHistory,
-    enabled: !!session,
+    queryKey: ['chatbot-chat-history', chatbotId],
+    queryFn: () => chatApi.fetchChatbotHistory(chatbotId!),
+    enabled: !!chatbotId && !!session,
   });
 
   // Load history into local state
@@ -49,10 +59,10 @@ const Chatbot = () => {
 
   // Clear history mutation
   const clearMutation = useMutation({
-    mutationFn: chatApi.clearHistory,
+    mutationFn: () => chatApi.clearChatbotHistory(chatbotId!),
     onSuccess: () => {
       setMessages([]);
-      queryClient.invalidateQueries({ queryKey: ['chat-history'] });
+      queryClient.invalidateQueries({ queryKey: ['chatbot-chat-history', chatbotId] });
       toast.success('Chat history cleared');
     },
     onError: () => {
@@ -74,7 +84,7 @@ const Chatbot = () => {
   }, [messages, loading]);
 
   const handleSend = async (input: string) => {
-    if (!input.trim() || loading) return;
+    if (!input.trim() || loading || !chatbotId) return;
 
     const userMessage: LocalMessage = {
       id: crypto.randomUUID(),
@@ -88,19 +98,20 @@ const Chatbot = () => {
     setLoading(true);
 
     // Save user message to DB
-    chatApi.saveMessage('user', input.trim()).catch(console.error);
+    chatApi.saveChatbotMessage(chatbotId, 'user', input.trim()).catch(console.error);
 
     let assistantContent = "";
     const assistantId = crypto.randomUUID();
 
     try {
-      const response = await fetch(CHAT_URL, {
+      const response = await fetch(WIDGET_CHAT_URL, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${session?.access_token}`,
         },
         body: JSON.stringify({
+          chatbotId,
           messages: updatedMessages.map(m => ({
             role: m.role,
             content: m.content
@@ -195,8 +206,8 @@ const Chatbot = () => {
       }
 
       // Save assistant message to DB
-      if (assistantContent) {
-        chatApi.saveMessage('assistant', assistantContent).catch(console.error);
+      if (assistantContent && chatbotId) {
+        chatApi.saveChatbotMessage(chatbotId, 'assistant', assistantContent).catch(console.error);
       }
 
     } catch (error) {
@@ -225,7 +236,7 @@ const Chatbot = () => {
     }
   };
 
-  if (historyLoading) {
+  if (chatbotLoading || historyLoading) {
     return (
       <div className="h-[calc(100vh-8rem)] flex items-center justify-center">
         <div className="text-center animate-fade-in">
@@ -236,21 +247,41 @@ const Chatbot = () => {
     );
   }
 
+  if (!chatbot) {
+    return (
+      <div className="h-[calc(100vh-8rem)] flex items-center justify-center">
+        <div className="text-center animate-fade-in">
+          <p className="text-sm text-muted-foreground">Chatbot not found</p>
+          <Link to="/chatbots">
+            <Button variant="link" className="mt-2">Back to Chatbots</Button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="h-[calc(100vh-8rem)] flex flex-col page-transition">
       {/* Header */}
       <div className="mb-6 flex items-start justify-between">
-        <div>
-          <div className="flex items-center gap-3 mb-2">
-            <h1 className="text-2xl font-bold">AI Chatbot</h1>
-            <div className="flex h-6 items-center px-2.5 rounded-full bg-accent/10 border border-accent/20">
-              <Sparkles className="h-3 w-3 text-accent mr-1.5" />
-              <span className="text-xs font-medium text-accent">AI Powered</span>
+        <div className="flex items-center gap-4">
+          <Link to="/chatbots">
+            <Button variant="ghost" size="icon">
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
+          </Link>
+          <div>
+            <div className="flex items-center gap-3 mb-2">
+              <h1 className="text-2xl font-bold">{chatbot.name}</h1>
+              <div className="flex h-6 items-center px-2.5 rounded-full bg-accent/10 border border-accent/20">
+                <Sparkles className="h-3 w-3 text-accent mr-1.5" />
+                <span className="text-xs font-medium text-accent">AI Powered</span>
+              </div>
             </div>
+            <p className="text-sm text-muted-foreground">
+              Chat with your knowledge assistant
+            </p>
           </div>
-          <p className="text-sm text-muted-foreground">
-            Get instant answers from your knowledge base
-          </p>
         </div>
         {messages.length > 0 && (
           <Button
@@ -274,9 +305,9 @@ const Chatbot = () => {
               <Brain className="h-4 w-4 text-accent-foreground" />
             </div>
             <div>
-              <h3 className="font-semibold text-sm">Knowledge Assistant</h3>
+              <h3 className="font-semibold text-sm">{chatbot.name}</h3>
               <p className="text-xs text-muted-foreground">
-                Powered by your content
+                Powered by your knowledge sources
               </p>
             </div>
           </div>

@@ -63,11 +63,14 @@ serve(async (req) => {
 
     console.log('Scraping URL:', formattedUrl, 'for user:', user.id);
 
-    // Update status to processing
+    // Update status to scraping stage
     if (sourceId) {
       await supabase
         .from('knowledge_sources')
-        .update({ status: 'processing' })
+        .update({ 
+          status: 'processing',
+          processing_stage: 'scraping'
+        })
         .eq('id', sourceId)
         .eq('user_id', user.id);
     }
@@ -97,6 +100,7 @@ serve(async (req) => {
           .from('knowledge_sources')
           .update({ 
             status: 'error',
+            processing_stage: 'error',
             error_message: data.error || `Scraping failed with status ${response.status}`
           })
           .eq('id', sourceId)
@@ -115,12 +119,13 @@ serve(async (req) => {
 
     console.log('Scrape successful, extracted', markdown.length, 'characters');
 
-    // Update source with extracted content
+    // Update source with extracted content and start embedding stage
     if (sourceId) {
       await supabase
         .from('knowledge_sources')
         .update({ 
-          status: 'completed',
+          status: 'processing',
+          processing_stage: 'embedding',
           extracted_text: markdown,
           metadata: metadata,
           error_message: null

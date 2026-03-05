@@ -59,9 +59,9 @@ const App = () => (
             <Route element={<AppLayout />}>
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/chatbots" element={<Chatbots />} />
+              <Route path="/chatbots/:id/chat" element={<Chatbot />} />
               <Route path="/chatbots/:id/embed" element={<ChatbotEmbed />} />
               <Route path="/chatbots/:id/sources" element={<ChatbotSources />} />
-              <Route path="/chatbot" element={<Chatbot />} />
               <Route path="/knowledge" element={<KnowledgeSources />} />
               <Route path="/settings" element={<Settings />} />
               <Route path="/admin/blog" element={<AdminBlog />} />

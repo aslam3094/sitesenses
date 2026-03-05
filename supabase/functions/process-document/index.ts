@@ -51,7 +51,10 @@ serve(async (req) => {
     // Update status to processing
     await supabase
       .from('knowledge_sources')
-      .update({ status: 'processing' })
+      .update({ 
+        status: 'processing',
+        processing_stage: 'scraping'
+      })
       .eq('id', sourceId)
       .eq('user_id', user.id);
 
@@ -67,6 +70,7 @@ serve(async (req) => {
         .from('knowledge_sources')
         .update({ 
           status: 'error',
+          processing_stage: 'error',
           error_message: `Failed to download file: ${downloadError.message}`
         })
         .eq('id', sourceId)
@@ -135,11 +139,12 @@ serve(async (req) => {
 
       console.log('Document processed, extracted', extractedText.length, 'characters');
 
-      // Update source with extracted content
+      // Update source with extracted content and start embedding stage
       await supabase
         .from('knowledge_sources')
         .update({ 
-          status: 'completed',
+          status: 'processing',
+          processing_stage: 'embedding',
           extracted_text: extractedText,
           metadata: { 
             fileName,
@@ -180,6 +185,7 @@ serve(async (req) => {
         .from('knowledge_sources')
         .update({ 
           status: 'error',
+          processing_stage: 'error',
           error_message: errorMsg
         })
         .eq('id', sourceId)

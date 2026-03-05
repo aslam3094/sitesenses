@@ -66,6 +66,26 @@ const ChatbotSources = () => {
     }
   }, [allSources, queryClient]);
 
+  const getProcessingStatus = (source: KnowledgeSource) => {
+    if (source.status === 'completed') {
+      return { text: 'Ready', color: 'text-green-600', icon: Check };
+    }
+    if (source.status === 'error') {
+      return { text: source.error_message || 'Error', color: 'text-red-600', icon: X };
+    }
+    if (source.status === 'processing') {
+      const stage = source.processing_stage || 'scraping';
+      if (stage === 'scraping') {
+        return { text: source.source_type === 'url' ? 'Scraping content...' : 'Processing document...', color: 'text-yellow-600', icon: Loader2 };
+      }
+      if (stage === 'embedding') {
+        return { text: 'Learning from content...', color: 'text-blue-600', icon: Loader2 };
+      }
+      return { text: 'Processing...', color: 'text-yellow-600', icon: Loader2 };
+    }
+    return { text: 'Pending', color: 'text-muted-foreground', icon: Loader2 };
+  };
+
   const isChatbotReady = chatbotSources.length > 0 && 
     allSources.filter((s: KnowledgeSource) => chatbotSources.some((cs: { source_id: string }) => cs.source_id === s.id))
       .every((s: KnowledgeSource) => s.status === 'completed');
@@ -220,15 +240,19 @@ const ChatbotSources = () => {
                       <div>
                         <p className="font-medium text-sm">{source.name}</p>
                         <div className="flex items-center gap-2 text-xs">
-                          <span className={`capitalize font-medium ${
-                            source.status === 'completed' ? 'text-green-600' :
-                            source.status === 'processing' ? 'text-yellow-600' :
-                            source.status === 'error' ? 'text-red-600' :
-                            'text-muted-foreground'
-                          }`}>
-                            {source.status === 'processing' && <Loader2 className="h-3 w-3 animate-spin inline" />}
-                            {source.status === 'completed' && <Check className="h-3 w-3 inline" />}
-                            {source.status}
+                          <span className={`capitalize font-medium ${getProcessingStatus(source).color}`}>
+                            {(() => {
+                              const status = getProcessingStatus(source);
+                              const IconComponent = status.icon;
+                              return (
+                                <>
+                                  {status.icon === Loader2 && <Loader2 className="h-3 w-3 animate-spin inline" />}
+                                  {status.icon === Check && <Check className="h-3 w-3 inline" />}
+                                  {status.icon === X && <X className="h-3 w-3 inline" />}
+                                  {' '}{status.text}
+                                </>
+                              );
+                            })()}
                           </span>
                           {source.status === 'completed' && sourcesWithEmbeddings[cs.source_id] && (
                             <span className="text-muted-foreground">
@@ -274,43 +298,47 @@ const ChatbotSources = () => {
             </div>
           ) : (
             <div className="space-y-2">
-              {allSources.filter((s: KnowledgeSource) => !isSourceLinked(s.id)).map((source: KnowledgeSource) => (
-                <div
-                  key={source.id}
-                  className="flex items-center justify-between p-3 rounded-lg border"
-                >
-                  <div className="flex items-center gap-3">
-                    {source.source_type === 'url' ? (
-                      <Globe className="h-4 w-4 text-muted-foreground" />
-                    ) : (
-                      <FileText className="h-4 w-4 text-muted-foreground" />
-                    )}
-                    <div>
-                      <p className="font-medium text-sm">{source.name}</p>
-                      <div className="flex items-center gap-2 text-xs">
-                        <span className={`capitalize font-medium ${
-                          source.status === 'completed' ? 'text-green-600' :
-                          source.status === 'processing' ? 'text-yellow-600' :
-                          source.status === 'error' ? 'text-red-600' :
-                          'text-muted-foreground'
-                        }`}>
-                          {source.status === 'processing' && <Loader2 className="h-3 w-3 animate-spin inline" />}
-                          {source.status === 'completed' && <Check className="h-3 w-3 inline" />}
-                          {source.status}
-                        </span>
+                  {allSources.filter((s: KnowledgeSource) => !isSourceLinked(s.id)).map((source: KnowledgeSource) => (
+                    <div
+                      key={source.id}
+                      className="flex items-center justify-between p-3 rounded-lg border"
+                    >
+                      <div className="flex items-center gap-3">
+                        {source.source_type === 'url' ? (
+                          <Globe className="h-4 w-4 text-muted-foreground" />
+                        ) : (
+                          <FileText className="h-4 w-4 text-muted-foreground" />
+                        )}
+                        <div>
+                          <p className="font-medium text-sm">{source.name}</p>
+                          <div className="flex items-center gap-2 text-xs">
+                            <span className={`capitalize font-medium ${getProcessingStatus(source).color}`}>
+                              {(() => {
+                                const status = getProcessingStatus(source);
+                                const IconComponent = status.icon;
+                                return (
+                                  <>
+                                    {status.icon === Loader2 && <Loader2 className="h-3 w-3 animate-spin inline" />}
+                                    {status.icon === Check && <Check className="h-3 w-3 inline" />}
+                                    {status.icon === X && <X className="h-3 w-3 inline" />}
+                                    {' '}{status.text}
+                                  </>
+                                );
+                              })()}
+                            </span>
+                          </div>
+                        </div>
                       </div>
+                      <Button
+                        size="sm"
+                        onClick={() => addSourceMutation.mutate(source.id)}
+                        disabled={addSourceMutation.isPending}
+                      >
+                        <Plus className="h-4 w-4 mr-1" />
+                        Link
+                      </Button>
                     </div>
-                  </div>
-                  <Button
-                    size="sm"
-                    onClick={() => addSourceMutation.mutate(source.id)}
-                    disabled={addSourceMutation.isPending}
-                  >
-                    <Plus className="h-4 w-4 mr-1" />
-                    Link
-                  </Button>
-                </div>
-              ))}
+                  ))}
             </div>
           )}
         </CardContent>

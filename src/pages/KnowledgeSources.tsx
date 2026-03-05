@@ -121,21 +121,35 @@ const KnowledgeSources = () => {
     }
   };
 
-  const getStatusIcon = (status: KnowledgeSource["status"]) => {
-    switch (status) {
-      case "completed":
-        return <CheckCircle2 className="h-3.5 w-3.5 text-success" />;
-      case "processing":
-        return <Loader2 className="h-3.5 w-3.5 text-warning animate-spin" />;
-      case "error":
-        return <AlertCircle className="h-3.5 w-3.5 text-destructive" />;
-      default:
-        return <Clock className="h-3.5 w-3.5 text-muted-foreground" />;
+  const getStatusIcon = (source: KnowledgeSource) => {
+    if (source.status === "completed") {
+      return <CheckCircle2 className="h-3.5 w-3.5 text-success" />;
     }
+    if (source.status === "error") {
+      return <AlertCircle className="h-3.5 w-3.5 text-destructive" />;
+    }
+    if (source.status === "processing") {
+      return <Loader2 className="h-3.5 w-3.5 text-warning animate-spin" />;
+    }
+    return <Clock className="h-3.5 w-3.5 text-muted-foreground" />;
   };
 
-  const getStatusColor = (status: KnowledgeSource["status"]) => {
-    switch (status) {
+  const getStatusText = (source: KnowledgeSource) => {
+    if (source.status === "completed") return "Ready";
+    if (source.status === "error") return "Error";
+    if (source.status === "processing") {
+      const stage = source.processing_stage || 'scraping';
+      if (stage === 'scraping') {
+        return source.source_type === 'url' ? 'Scraping...' : 'Processing...';
+      }
+      if (stage === 'embedding') return 'Learning...';
+      return 'Processing...';
+    }
+    return 'Pending';
+  };
+
+  const getStatusColor = (source: KnowledgeSource) => {
+    switch (source.status) {
       case "completed":
         return "bg-success/10 text-success";
       case "processing":
@@ -324,9 +338,9 @@ const KnowledgeSources = () => {
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
-                  <div className={`flex items-center gap-1.5 text-xs px-2 py-1 rounded-full ${getStatusColor(source.status)}`}>
-                    {getStatusIcon(source.status)}
-                    <span className="capitalize">{source.status}</span>
+                  <div className={`flex items-center gap-1.5 text-xs px-2 py-1 rounded-full ${getStatusColor(source)}`}>
+                    {getStatusIcon(source)}
+                    <span className="capitalize">{getStatusText(source)}</span>
                   </div>
                   <Button
                     variant="ghost"

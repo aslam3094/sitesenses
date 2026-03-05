@@ -240,13 +240,25 @@ serve(async (req) => {
 
     if (insertError) {
       console.error('Error inserting embeddings:', insertError);
+      // Mark as error
+      await supabase
+        .from('knowledge_sources')
+        .update({
+          status: 'error',
+          processing_stage: 'error',
+          error_message: 'Failed to generate embeddings'
+        })
+        .eq('id', sourceId)
+        .eq('user_id', user.id);
       throw insertError;
     }
 
-    // Update knowledge source metadata
+    // Update knowledge source as completed
     await supabase
       .from('knowledge_sources')
       .update({
+        status: 'completed',
+        processing_stage: 'completed',
         metadata: {
           ...source.metadata,
           embedding_count: chunks.length,

@@ -9,6 +9,7 @@ export interface KnowledgeSource {
   file_path: string | null;
   file_name: string | null;
   status: 'pending' | 'processing' | 'completed' | 'error';
+  processing_stage: 'pending' | 'scraping' | 'embedding' | 'completed' | 'error';
   extracted_text: string | null;
   error_message: string | null;
   metadata: Record<string, unknown>;

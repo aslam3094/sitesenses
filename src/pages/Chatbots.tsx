@@ -169,7 +169,7 @@ const Chatbots = () => {
 
                 {/* Actions */}
                 <div className="flex gap-2">
-                  <Link to={`/chatbots/${chatbot.id}`} className="flex-1">
+                  <Link to={`/chatbots/${chatbot.id}/chat`} className="flex-1">
                     <Button variant="outline" className="w-full">
                       <MessageSquare className="h-4 w-4 mr-2" />
                       Chat

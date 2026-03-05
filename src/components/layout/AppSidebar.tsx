@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { LayoutDashboard, MessageSquare, Database, Settings, LogOut, Brain, ChevronLeft, ChevronRight, FileText, Bot } from "lucide-react";
+import { LayoutDashboard, Database, Settings, LogOut, Brain, ChevronLeft, ChevronRight, FileText, Bot } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Sidebar,
@@ -19,7 +19,6 @@ import { useIsAdmin } from "@/hooks/useIsAdmin";
 const navItems = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
   { title: "Chatbots", url: "/chatbots", icon: Bot },
-  { title: "Chat", url: "/chatbot", icon: MessageSquare },
   { title: "Knowledge Sources", url: "/knowledge", icon: Database },
   { title: "Settings", url: "/settings", icon: Settings },
 ];
