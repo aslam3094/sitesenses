@@ -347,7 +347,6 @@ const KnowledgeSources = () => {
                     size="icon"
                     onClick={() => handleDelete(source)}
                     className="h-8 w-8 text-muted-foreground hover:text-destructive"
-                    disabled={source.status === 'processing'}
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>
