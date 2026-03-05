@@ -16,6 +16,7 @@ import Auth from "@/pages/Auth";
 import Pricing from "@/pages/Pricing";
 import Blog from "@/pages/Blog";
 import BlogPost from "@/pages/BlogPost";
+import Contact from "@/pages/Contact";
 
 // Protected Pages
 import Dashboard from "@/pages/Dashboard";
@@ -47,6 +48,7 @@ const App = () => (
               <Route path="/pricing" element={<Pricing />} />
               <Route path="/blog" element={<Blog />} />
               <Route path="/blog/:slug" element={<BlogPost />} />
+              <Route path="/contact" element={<Contact />} />
             </Route>
 
             {/* Auth Route */}

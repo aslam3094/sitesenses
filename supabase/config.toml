@@ -17,3 +17,10 @@ verify_jwt = false
 
 [functions.trigger-signup-email]
 verify_jwt = false
+
+[functions.create-support-ticket]
+verify_jwt = false
+
+[auth]
+site_url = "https://sitesenses-7ya7brzb9-aslam3094-1333s-projects.vercel.app"
+additional_redirect_urls = ["https://sitesenses-7ya7brzb9-aslam3094-1333s-projects.vercel.app/**"]

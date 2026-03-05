@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Brain, Upload, Globe, MessageSquare, Shield, Zap, ArrowRight, Check, Users, BarChart3 } from "lucide-react";
+import { Brain, Upload, Globe, MessageSquare, Shield, Zap, ArrowRight, Users, BarChart3 } from "lucide-react";
 import { GLSLHills } from "@/components/ui/glsl-hills";
 
 const Landing = () => {
@@ -27,12 +27,7 @@ const Landing = () => {
     },
   ];
 
-  const benefits = [
-    "Instant answers from your content",
-    "No AI hallucinations",
-    "Setup in minutes",
-    "Works with any website",
-  ];
+
 
   return (
     <div className="flex flex-col relative">
@@ -63,27 +58,7 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* Benefits Section */}
-      <section className="py-10 md:py-12 relative z-10 bg-background/80 backdrop-blur-sm">
-        <div className="container">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-            {benefits.map((benefit, i) => (
-              <div 
-                key={i} 
-                className="flex items-center gap-3 p-4 rounded-xl bg-card/90 border border-border shadow-card animate-fade-in-up hover-lift"
-                style={{ animationDelay: `${i * 0.1}s` }}
-              >
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-success/10">
-                  <Check className="h-4 w-4 text-success" />
-                </div>
-                <span className="text-sm font-medium text-foreground">{benefit}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Features Section - Dark theme like hero */}
+      {/* Features Section - Consistent with hero theme */}
       <section id="features" className="py-16 md:py-20 relative z-10 bg-foreground">
         <div className="container">
           <div className="text-center mb-10 md:mb-12 animate-fade-in">

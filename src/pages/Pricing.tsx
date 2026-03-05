@@ -10,8 +10,8 @@ const Pricing = () => {
   const plans = [
     {
       name: "Starter",
-      monthlyPrice: 39,
-      annualPrice: 468,
+      monthlyPrice: 2999,
+      annualPrice: 29990,
       description: "Perfect for small businesses getting started",
       features: [
         "1 chatbot",
@@ -25,8 +25,8 @@ const Pricing = () => {
     },
     {
       name: "Growth",
-      monthlyPrice: 79,
-      annualPrice: 948,
+      monthlyPrice: 5999,
+      annualPrice: 59990,
       description: "For growing teams that need more power",
       features: [
         "Up to 2 chatbots",
@@ -44,8 +44,8 @@ const Pricing = () => {
     },
     {
       name: "Scale",
-      monthlyPrice: 259,
-      annualPrice: 3108,
+      monthlyPrice: 19999,
+      annualPrice: 199990,
       description: "For businesses that need advanced features",
       features: [
         "Up to 3 chatbots",
@@ -150,12 +150,12 @@ const Pricing = () => {
                   {plan.monthlyPrice !== null ? (
                     <>
                       <span className="text-4xl font-bold">
-                        ${plan.monthlyPrice}
+                        ₹{plan.monthlyPrice.toLocaleString('en-IN')}
                       </span>
                       <span className="text-muted-foreground">/mo</span>
                       {isAnnual && (
                         <p className="text-xs text-muted-foreground mt-1.5">
-                          billed ${plan.annualPrice} yearly
+                          billed ₹{plan.annualPrice.toLocaleString('en-IN')} yearly
                         </p>
                       )}
                     </>
