@@ -6,27 +6,54 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
 };
 
-// Generate embedding for query using MiniMax
-async function generateQueryEmbedding(text: string, apiKey: string): Promise<number[]> {
-  const response = await fetch('https://api.minimax.chat/v1/embeddings', {
+const TARGET_EMBEDDING_DIMENSION = 1536;
+
+async function generateHuggingFaceEmbedding(text: string, apiKey: string): Promise<number[]> {
+  const response = await fetch('https://router.huggingface.co/hf-inference/models/sentence-transformers/all-MiniLM-L6-v2/pipeline/feature-extraction', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${apiKey}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ inputs: text }),
+  });
+
+  if (!response.ok) {
+    const error = await response.text();
+    throw new Error(`Hugging Face API error: ${response.status} - ${error}`);
+  }
+
+  const embedding: number[] = await response.json();
+
+  if (embedding.length < TARGET_EMBEDDING_DIMENSION) {
+    const padded = new Array(TARGET_EMBEDDING_DIMENSION).fill(0);
+    for (let i = 0; i < embedding.length; i++) {
+      padded[i] = embedding[i];
+    }
+    return padded;
+  }
+
+  return embedding;
+}
+
+async function generateGroqChatCompletion(messages: any[], apiKey: string, systemPrompt: string): Promise<Response> {
+  const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${apiKey}`,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      model: 'embo-01',
-      text: text,
+      model: 'llama-3.1-8b-instant',
+      messages: [
+        { role: 'system', content: systemPrompt },
+        ...messages
+      ],
+      stream: true,
     }),
   });
 
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(`MiniMax API error: ${error.error?.message || response.statusText}`);
-  }
-
-  const data = await response.json();
-  return data.data[0].embedding;
+  return response;
 }
 
 serve(async (req) => {
@@ -44,13 +71,13 @@ serve(async (req) => {
       );
     }
 
-    const MINIMAX_API_KEY = Deno.env.get('MINIMAX_API_KEY');
-    const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
-    
-    if (!MINIMAX_API_KEY && !LOVABLE_API_KEY) {
-      console.error('MINIMAX_API_KEY not configured');
+    const GROQ_API_KEY = Deno.env.get('GROQ_API_KEY');
+    const HF_API_KEY = Deno.env.get('HF_API_KEY');
+
+    if (!GROQ_API_KEY) {
+      console.error('Groq API key not configured');
       return new Response(
-        JSON.stringify({ success: false, error: 'AI service not configured' }),
+        JSON.stringify({ success: false, error: 'Groq API key not configured' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -72,7 +99,7 @@ serve(async (req) => {
     // Get user from token
     const token = authHeader.replace('Bearer ', '');
     const { data: { user }, error: userError } = await supabase.auth.getUser(token);
-    
+
     if (userError || !user) {
       return new Response(
         JSON.stringify({ success: false, error: 'Invalid authorization' }),
@@ -89,12 +116,12 @@ serve(async (req) => {
     let knowledgeContext = '';
     let useSemanticSearch = false;
 
-    // Try semantic search if MiniMax key is available
-    if (MINIMAX_API_KEY && query) {
+    // Try semantic search using Hugging Face embeddings
+    if (HF_API_KEY && query) {
       try {
         // Generate embedding for the query
-        const queryEmbedding = await generateQueryEmbedding(query, MINIMAX_API_KEY);
-        
+        const queryEmbedding = await generateHuggingFaceEmbedding(query, HF_API_KEY);
+
         // Search for relevant chunks using vector similarity
         const { data: matches, error: matchError } = await supabase.rpc('match_embeddings', {
           query_embedding: `[${queryEmbedding.join(',')}]`,
@@ -106,9 +133,9 @@ serve(async (req) => {
         if (!matchError && matches && matches.length > 0) {
           useSemanticSearch = true;
           console.log(`Found ${matches.length} relevant chunks via semantic search`);
-          
+
           // Build context from matched chunks
-          knowledgeContext = matches.map((m: { chunk_text: string; similarity: number }, i: number) => 
+          knowledgeContext = matches.map((m: { chunk_text: string; similarity: number }, i: number) =>
             `[Chunk ${i + 1} - Relevance: ${(m.similarity * 100).toFixed(1)}%]\n${m.chunk_text}`
           ).join('\n\n---\n\n');
         }
@@ -130,69 +157,47 @@ serve(async (req) => {
         knowledgeContext = sources.map(s => {
           const sourceType = s.source_type === 'url' ? 'Website' : 'Document';
           // Limit each source to prevent context overflow
-          const text = s.extracted_text.length > 3000 
-            ? s.extracted_text.substring(0, 3000) + '...' 
+          const text = s.extracted_text.length > 3000
+            ? s.extracted_text.substring(0, 3000) + '...'
             : s.extracted_text;
           return `--- ${sourceType}: ${s.name} ---\n${text}`;
         }).join('\n\n');
       }
     }
 
-    // Build system prompt with strict RAG constraints
-    const systemPrompt = knowledgeContext 
-      ? `You are a knowledge base assistant that answers questions EXCLUSIVELY using the provided context.
+    // Build system prompt with conversation and knowledge base support
+    const systemPrompt = knowledgeContext
+      ? `You are a helpful, friendly, and knowledgeable AI assistant.
 
-ABSOLUTE RULES - FOLLOW EXACTLY:
-1. You MUST ONLY use information explicitly stated in the CONTEXT below.
-2. If the answer is NOT in the context, respond EXACTLY with: "I don't have that information yet."
-3. NEVER use your general knowledge, training data, or make assumptions.
-4. NEVER hallucinate, guess, or infer beyond what is explicitly stated.
-5. Do NOT say things like "based on my knowledge" or "generally speaking".
-6. If only partial information is available, share what you found and say:
-   "I don't have complete information on this topic yet."
-7. When answering, carefully synthesize the information from the provided context.
-8. Respond in a friendly and helpful manner.
-9. Present answers clearly in point-wise format based only on the information found in the context.
-10. Be concise and directly reference the context.
+RESPONSE STYLE:
+1. Be warm and conversational - greet users naturally and engage in small talk
+2. Be confident and direct - never use hedging phrases like "based on the context", "appears to be", "seems to", or "it looks like"
+3. Present information clearly:
+   - Use well-formatted paragraphs with proper spacing
+   - Use bullet points (•) or numbered lists for multiple items
+   - Bold important terms using **text**
+4. Don't mention where the information comes from - just present it naturally
+5. If you don't know something, say it simply without referencing any "context" or "sources"
 
-CONTEXT:
+KNOWLEDGE BASE:
 ${knowledgeContext}
 
-Remember: If it's not in the CONTEXT above, say "I don't have that information yet." — no exceptions.`
-      : `You are a knowledge base assistant.
+Remember: Answer confidently, format nicely with paragraphs and bullet points, and never use hedging language.`
+      : `You are a helpful, friendly AI assistant.
 
-IMPORTANT: There are no knowledge sources configured yet. 
+RESPONSE STYLE:
+1. Be warm and conversational - greet users naturally
+2. Be confident and direct - no hedging phrases
+3. Use well-formatted paragraphs and bullet points (•) for lists
+4. Bold important terms using **text**
 
-For ANY question the user asks, respond with:
-
-"I don't have any knowledge sources to answer your question yet. Please add content (website URLs or documents) to the Knowledge Sources page first."
-
-Do not attempt to answer any questions using your general knowledge.`;
+Currently, no knowledge sources have been added to this chatbot. For specific questions, you'll need to let the user know that information hasn't been added yet.`;
 
     console.log('Using', useSemanticSearch ? 'semantic search' : 'full text', 'with context length:', knowledgeContext.length);
 
-    // Call MiniMax API with streaming
-    const aiApiKey = MINIMAX_API_KEY || LOVABLE_API_KEY;
-    const aiEndpoint = MINIMAX_API_KEY 
-      ? 'https://api.minimax.chat/v1/text/chatcompletion_v2' 
-      : 'https://ai.gateway.lovable.dev/v1/chat/completions';
-    const aiModel = MINIMAX_API_KEY ? 'MiniMax-Text-01' : 'google/gemini-3-flash-preview';
-    
-    const response = await fetch(aiEndpoint, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${aiApiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: aiModel,
-        messages: [
-          { role: 'system', content: systemPrompt },
-          ...messages
-        ],
-        stream: true,
-      }),
-    });
+    // Call Groq for chat completion
+    console.log('Calling Groq API for chat completion');
+    const response = await generateGroqChatCompletion(messages, GROQ_API_KEY, systemPrompt);
 
     if (!response.ok) {
       if (response.status === 429) {
@@ -208,9 +213,9 @@ Do not attempt to answer any questions using your general knowledge.`;
         );
       }
       const errorText = await response.text();
-      console.error('AI gateway error:', response.status, errorText);
+      console.error('Groq API error:', response.status, errorText);
       return new Response(
-        JSON.stringify({ success: false, error: 'AI service error' }),
+        JSON.stringify({ success: false, error: `AI service error: ${response.status} - ${errorText}` }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }

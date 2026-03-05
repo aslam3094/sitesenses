@@ -62,6 +62,154 @@ export type Database = {
         }
         Relationships: []
       }
+      chatbots: {
+        Row: {
+          id: string
+          user_id: string
+          name: string
+          description: string | null
+          widget_color: string | null
+          is_active: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          name: string
+          description?: string | null
+          widget_color?: string | null
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          name?: string
+          description?: string | null
+          widget_color?: string | null
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      chatbot_sources: {
+        Row: {
+          id: string
+          chatbot_id: string
+          source_id: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          chatbot_id: string
+          source_id: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          chatbot_id?: string
+          source_id?: string
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chatbot_sources_chatbot_id_fkey"
+            columns: ["chatbot_id"]
+            isOneToOne: false
+            referencedRelation: "chatbots"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "chatbot_sources_source_id_fkey"
+            columns: ["source_id"]
+            isOneToOne: false
+            referencedRelation: "knowledge_sources"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chatbot_messages: {
+        Row: {
+          id: string
+          chatbot_id: string
+          user_id: string
+          role: string
+          content: string
+          token_count: number
+          metadata: Json | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          chatbot_id: string
+          user_id: string
+          role: string
+          content: string
+          token_count?: number
+          metadata?: Json | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          chatbot_id?: string
+          user_id?: string
+          role?: string
+          content?: string
+          token_count?: number
+          metadata?: Json | null
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chatbot_messages_chatbot_id_fkey"
+            columns: ["chatbot_id"]
+            isOneToOne: false
+            referencedRelation: "chatbots"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chatbot_stats: {
+        Row: {
+          id: string
+          chatbot_id: string
+          date: string
+          message_count: number
+          token_count: number
+          unique_users: number
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          chatbot_id: string
+          date?: string
+          message_count?: number
+          token_count?: number
+          unique_users?: number
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          chatbot_id?: string
+          date?: string
+          message_count?: number
+          token_count?: number
+          unique_users?: number
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chatbot_stats_chatbot_id_fkey"
+            columns: ["chatbot_id"]
+            isOneToOne: false
+            referencedRelation: "chatbots"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       chat_messages: {
         Row: {
           content: string
@@ -143,6 +291,7 @@ export type Database = {
           id: string
           metadata: Json | null
           name: string
+          processing_stage: string | null
           source_type: Database["public"]["Enums"]["source_type"]
           status: Database["public"]["Enums"]["ingestion_status"]
           updated_at: string
@@ -158,6 +307,7 @@ export type Database = {
           id?: string
           metadata?: Json | null
           name: string
+          processing_stage?: string | null
           source_type: Database["public"]["Enums"]["source_type"]
           status?: Database["public"]["Enums"]["ingestion_status"]
           updated_at?: string
@@ -173,6 +323,7 @@ export type Database = {
           id?: string
           metadata?: Json | null
           name?: string
+          processing_stage?: string | null
           source_type?: Database["public"]["Enums"]["source_type"]
           status?: Database["public"]["Enums"]["ingestion_status"]
           updated_at?: string
@@ -219,6 +370,20 @@ export type Database = {
           match_count?: number
           match_threshold?: number
           p_user_id?: string
+          query_embedding: string
+        }
+        Returns: {
+          chunk_text: string
+          id: string
+          similarity: number
+          source_id: string
+        }[]
+      }
+      match_embeddings_by_sources: {
+        Args: {
+          match_count?: number
+          match_threshold?: number
+          p_source_ids?: string[]
           query_embedding: string
         }
         Returns: {

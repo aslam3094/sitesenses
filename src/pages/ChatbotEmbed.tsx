@@ -33,22 +33,20 @@ const ChatbotEmbed = () => {
     },
   });
 
-  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
-  
+  const appUrl = window.location.origin;
+   
   const embedCode = `<script>
   (function() {
     var script = document.createElement('script');
-    script.src = '${supabaseUrl}/widget.js';
+    script.src = '${appUrl}/widget.js';
     script.async = true;
     script.setAttribute('data-chatbot-id', '${id}');
     script.setAttribute('data-color', '${widgetColor}');
     script.setAttribute('data-title', '${widgetTitle}');
-    script.setAttribute('data-base-url', '${supabaseUrl}');
+    script.setAttribute('data-base-url', '${appUrl}');
     document.head.appendChild(script);
   })();
-</script>
-<div id="sitesense-widget-button"></div>
-<div id="sitesense-widget-container"></div>`;
+</script>`;
 
   const handleCopy = () => {
     navigator.clipboard.writeText(embedCode);
