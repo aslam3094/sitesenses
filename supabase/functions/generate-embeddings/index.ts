@@ -93,6 +93,8 @@ function splitIntoChunks(text: string): { text: string; tokenCount: number }[] {
 
 // Generate embeddings using MiniMax
 async function generateEmbedding(text: string, apiKey: string): Promise<number[]> {
+  console.log('Calling MiniMax embeddings API for text length:', text.length);
+  
   const response = await fetch('https://api.minimax.chat/v1/embeddings', {
     method: 'POST',
     headers: {
@@ -105,12 +107,34 @@ async function generateEmbedding(text: string, apiKey: string): Promise<number[]
     }),
   });
 
+  const responseText = await response.text();
+  console.log('MiniMax API response status:', response.status);
+  
   if (!response.ok) {
-    const error = await response.json();
-    throw new Error(`MiniMax API error: ${error.error?.message || response.statusText}`);
+    console.error('MiniMax API error response:', responseText);
+    throw new Error(`MiniMax API error: ${response.status} - ${responseText}`);
   }
 
-  const data = await response.json();
+  let data;
+  try {
+    data = JSON.parse(responseText);
+  } catch (parseError) {
+    console.error('Failed to parse MiniMax response:', responseText);
+    throw new Error(`Failed to parse MiniMax response: ${responseText}`);
+  }
+
+  console.log('MiniMax response structure:', JSON.stringify(data).substring(0, 200));
+
+  if (!data.data || !Array.isArray(data.data) || data.data.length === 0) {
+    console.error('Unexpected MiniMax response - no data:', data);
+    throw new Error(`MiniMax API returned no embedding data. Response: ${JSON.stringify(data)}`);
+  }
+
+  if (!data.data[0].embedding) {
+    console.error('Missing embedding in response:', data.data[0]);
+    throw new Error(`MiniMax API response missing embedding field`);
+  }
+
   return data.data[0].embedding;
 }
 
@@ -180,12 +204,16 @@ serve(async (req) => {
       );
     }
 
-    if (!source.extracted_text) {
+    if (!source.extracted_text || source.extracted_text.trim().length === 0) {
+      console.error('No extracted text available or text is empty. Source:', source);
       return new Response(
-        JSON.stringify({ success: false, error: 'No extracted text available' }),
+        JSON.stringify({ success: false, error: 'No extracted text available or text is empty' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
+
+    console.log('Extracted text length:', source.extracted_text.length);
+    console.log('Text preview:', source.extracted_text.substring(0, 200));
 
     // Delete existing embeddings for this source
     await supabase
